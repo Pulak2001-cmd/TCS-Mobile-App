@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "21986119126",
+    "project_id": "tcs-app-affde",
+    "storage_bucket": "tcs-app-affde.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:21986119126:android:d1b6ab44d558790ae3e877",
+        "android_client_info": {
+          "package_name": "com.tcs.main_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "21986119126-jop4a9iajmhfi1t8ctuimmbp94d7l2ld.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxxcsRbLhmJA5RWs9BApU7jEupa_5ukfY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "21986119126-jop4a9iajmhfi1t8ctuimmbp94d7l2ld.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
