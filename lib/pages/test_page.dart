@@ -42,7 +42,7 @@ class _TestPageState extends State<TestPage> {
   }
 
   Future uploadImage() async{
-    final request = await http.MultipartRequest("POST", Uri.parse('url'));
+    final request = http.MultipartRequest("POST", Uri.parse('https://tcs-flask-api.herokuapp.com/upload'));
     final headers = {
       "Content-type":"multipart/form-data"
     };
@@ -54,8 +54,8 @@ class _TestPageState extends State<TestPage> {
     request.headers.addAll(headers);
     final response = await request.send();
     http.Response res = await http.Response.fromStream(response);
-    final resJSON = jsonDecode(res.body);
-    print(resJSON['message']);
+    var resJSON = await jsonDecode(jsonEncode(res.body));
+    print(resJSON);
     setState((){});
   }
 
@@ -84,12 +84,18 @@ class _TestPageState extends State<TestPage> {
           backgroundColor: Colors.transparent,
         ),
         body: SafeArea(
-          child: Text(''),
+          child: ElevatedButton(
+            onPressed: (){
+              uploadImage();
+            },
+            child: Text('Upload'),
+          ),
         ),
         floatingActionButton: ElevatedButton(
-          onPressed: (){
-            pickImage();
+          onPressed: () async{
+            await pickImage();
             uploadImage();
+
           },
           child: Icon(Icons.download),
         ),
