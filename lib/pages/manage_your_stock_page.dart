@@ -1,13 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_login_ui/pages/widgets/bottom_modal_sheet_crop_status.dart';
-import 'package:flutter_login_ui/pages/widgets/bottom_modal_sheet_manage_your_lot.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../models/crop_status_model.dart';
+import '../widgets/bottom_modal_sheet_manage_your_lot.dart';
 
 class ManageYourStockPage extends StatefulWidget {
   const ManageYourStockPage({Key? key}) : super(key: key);

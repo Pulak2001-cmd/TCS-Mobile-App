@@ -210,7 +210,7 @@ class _WeightLineChartWidgetState extends State<WeightLineChartWidget> {
     Widget text;
     switch (value.toInt()) {
       case 2:
-        text = const Text('SEPT', style: style);
+        text = const Text('FEB', style: style);
         break;
       case 6:
         text = const Text('JUL', style: style);

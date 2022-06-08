@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_login_ui/pages/widgets/button_widget.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:introduction_screen/introduction_screen.dart';
+import '../widgets/button_widget.dart';
 import 'login_page.dart';
 
 class OnBoardingPage extends StatelessWidget {

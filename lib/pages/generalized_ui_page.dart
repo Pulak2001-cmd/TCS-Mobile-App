@@ -4,9 +4,9 @@ import 'package:flutter_login_ui/pages/generalizedUI_tabBar_views/dairy_view.dar
 import 'package:flutter_login_ui/pages/generalizedUI_tabBar_views/fruits_view.dart';
 import 'package:flutter_login_ui/pages/generalizedUI_tabBar_views/meat_view.dart';
 import 'package:flutter_login_ui/pages/generalizedUI_tabBar_views/vegetables_view.dart';
-import 'package:flutter_login_ui/pages/widgets/drawer_widget.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
+
+import '../widgets/drawer_widget.dart';
 class GeneralizedUIPage extends StatefulWidget {
   const GeneralizedUIPage({Key? key}) : super(key: key);
 

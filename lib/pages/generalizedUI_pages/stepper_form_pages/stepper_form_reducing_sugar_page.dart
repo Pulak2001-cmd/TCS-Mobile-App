@@ -4,15 +4,15 @@ import 'package:flutter_login_ui/pages/generalizedUI_pages/result_page.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
 
-class StepperForm extends StatefulWidget {
+class StepperFormReducingSugarPage extends StatefulWidget {
   String selectedParameter;
-  StepperForm({Key? key, required this.selectedParameter}) : super(key: key);
+  StepperFormReducingSugarPage({Key? key, required this.selectedParameter}) : super(key: key);
 
   @override
-  State<StepperForm> createState() => _StepperFormState();
+  State<StepperFormReducingSugarPage> createState() => _StepperFormReducingSugarPageState();
 }
 
-class _StepperFormState extends State<StepperForm> {
+class _StepperFormReducingSugarPageState extends State<StepperFormReducingSugarPage> {
 
   //Initialize ImagePicker() class
   final ImagePicker _picker = ImagePicker();
@@ -171,7 +171,6 @@ class _StepperFormState extends State<StepperForm> {
                 final isLastStep = currentStep == getSteps().length -1;
 
                 if(isLastStep){
-                  print(widget.selectedParameter);
                   Navigator.push(context, MaterialPageRoute(builder: (context) => ResultPage(selectedParameter: widget.selectedParameter, result: selectedVariety?.getRS(storageTime, storageTemp, currentRS), isSelected0: isSelected0, isSelected1: isSelected1, isSelected2: isSelected2,selectedVariety: selectedVariety, currentRS: currentRS ,)));
                   //send data to server
                 } else{

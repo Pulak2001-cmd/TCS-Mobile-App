@@ -1,8 +1,9 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_login_ui/pages/widgets/bottom_modal_sheet.dart';
-import 'package:flutter_login_ui/pages/widgets/header_widget.dart';
 import 'package:flutter_login_ui/services/auth.dart';
+
+import '../widgets/bottom_modal_sheet.dart';
+import '../widgets/header_widget.dart';
 
 
 class ProfilePage extends StatefulWidget{

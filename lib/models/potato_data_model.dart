@@ -144,7 +144,7 @@ class PotatoData {
   //------------------------------------------------------------------------------------------------
 
   //---------------------------------Sprouted Potato-----------------------------------------------
-  bool isImageSprouted(image) {
+  static bool isImageSprouted(image) {
     int n = Random().nextInt(2); // random value assigned to n from {0,1}
     if (n == 0)
       return false;
@@ -166,7 +166,7 @@ class PotatoData {
     int BETA = 2;
     int GAMA = 1;
     int TOTAL = 29;
-    double minDistance = 1000000;
+    double minDistance = double.infinity;
     double closestStateVal = 0;
     for (var row in (pH_data?.rows)!) {
       if (row[2]?.value.runtimeType == String) continue;
@@ -187,9 +187,8 @@ class PotatoData {
         minDistance = distance;
         closestStateVal = row[3]?.value;
       }
-      return closestStateVal;
     }
-    throw Exception('Some arbitrary error');
+    return closestStateVal;
   }
 
   Future<List<double>> calculate_ph_vectorized(timeVec, temp, rh) async{
@@ -265,9 +264,8 @@ class PotatoData {
         minDistance = distance;
         closestStateVal = row[5]?.value;
       }
-      return closestStateVal;
     }
-    throw Exception('Some arbitrary error');
+    return closestStateVal;
   }
 
   Future<List<double>> calculate_tot_sugar_vectorized(timeVec, temp, rh) async{
@@ -296,21 +294,20 @@ class PotatoData {
     int BETA = 2;
     int GAMA = 1;
     int TOTAL = 29;
-    int minDistance = 1000000;
+    double minDistance = double.infinity;
     double closestStateVal = 0;
     for (var row in (pH_data?.rows)!) {
       if(row[2]?.value.runtimeType == String) continue;
-      int? distance = 0;
-      distance += ((pow(row[2]?.value - time, 2) * ALPHA) as int?)!;
-      distance += ((pow(row[0]?.value - temp,2) * BETA) as int?)!;
-      distance += ((pow(row[1]?.value - rh,2) * GAMA) as int?)!;
+      double distance = 0;
+      distance += (pow(row[2]?.value - time, 2) * ALPHA);
+      distance += (pow(row[0]?.value - temp,2) * BETA);
+      distance += (pow(row[1]?.value - rh,2) * GAMA);
       if (distance < minDistance) {
         minDistance = distance;
         closestStateVal = row[4]?.value;
       }
-      return closestStateVal;
     }
-    throw Exception('Some arbitrary error');
+    return closestStateVal;
   }
 
   Future<List<double>> calculate_starch_vectorized(timeVec, temp, rh) async{

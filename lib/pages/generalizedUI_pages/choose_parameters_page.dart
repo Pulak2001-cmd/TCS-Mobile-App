@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_login_ui/models/potato_data_model.dart';
+import 'package:flutter_login_ui/pages/generalizedUI_pages/stepper_form_pages/stepper_form_appearance_of_potato_page.dart';
+import 'package:flutter_login_ui/pages/generalizedUI_pages/stepper_form_pages/stepper_form_chips_color_page.dart';
+import 'package:flutter_login_ui/pages/generalizedUI_pages/stepper_form_pages/stepper_form_ph_page.dart';
 import 'package:flutter_login_ui/pages/generalizedUI_pages/stepper_form_pages/stepper_form_reducing_sugar_page.dart';
+import 'package:flutter_login_ui/pages/generalizedUI_pages/stepper_form_pages/stepper_form_sprout_status_page.dart';
+import 'package:flutter_login_ui/pages/generalizedUI_pages/stepper_form_pages/stepper_form_starch_page.dart';
+import 'package:flutter_login_ui/pages/generalizedUI_pages/stepper_form_pages/stepper_form_total_sugar_page.dart';
 import 'package:flutter_login_ui/pages/generalizedUI_pages/stepper_form_pages/stepper_form_transpiration_page.dart';
 import 'package:flutter_login_ui/pages/generalizedUI_pages/stepper_form_pages/stepper_form_weight_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -144,19 +150,19 @@ class _ChooseParametersPageState extends State<ChooseParametersPage> {
       case 'Transpiration':
         return StepperFormTranspirationPage(selectedParameter: selectedParameter,);
       case 'Reducing sugar':
-        return StepperForm(selectedParameter: selectedParameter,);
+        return StepperFormReducingSugarPage(selectedParameter: selectedParameter,);
       case 'pH':
-        return StepperForm(selectedParameter: selectedParameter,);
+        return StepperFormPhPage(selectedParameter: selectedParameter,);
       case 'Total sugar':
-        return StepperForm(selectedParameter: selectedParameter,);
+        return StepperFormTotalSugarPage(selectedParameter: selectedParameter,);
       case 'Chips Color':
-        return StepperForm(selectedParameter: selectedParameter,);
+        return StepperFormChipsColorPage(selectedParameter: selectedParameter,);
       case 'Starch':
-        return StepperForm(selectedParameter: selectedParameter,);
+        return StepperFormStarchPage(selectedParameter: selectedParameter,);
       case 'Sprout Status':
-        return StepperForm(selectedParameter: selectedParameter,);
+        return StepperFormSproutStatusPage(selectedParameter: selectedParameter,);
       case 'Appearance of potato':
-        return StepperForm(selectedParameter: selectedParameter,);
+        return StepperFormAppearanceOfPotatoPage(selectedParameter: selectedParameter,);
 
       default:
         return null;

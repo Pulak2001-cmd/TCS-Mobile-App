@@ -5,16 +5,16 @@ import 'package:flutter_login_ui/pages/best_practices_page.dart';
 import 'package:flutter_login_ui/pages/profile_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../test_page.dart';
-import '../tutorial_page.dart';
-import '../forgot_password_page.dart';
-import '../forgot_password_verification_page.dart';
-import '../generalized_ui_page.dart';
-import '../login_page.dart';
-import '../manage_your_stock_page.dart';
-import '../real_time_monitoring_page.dart';
-import '../registration_page.dart';
-import '../splash_screen.dart';
+import '../pages/forgot_password_page.dart';
+import '../pages/forgot_password_verification_page.dart';
+import '../pages/generalized_ui_page.dart';
+import '../pages/login_page.dart';
+import '../pages/manage_your_stock_page.dart';
+import '../pages/real_time_monitoring_page.dart';
+import '../pages/registration_page.dart';
+import '../pages/splash_screen.dart';
+import '../pages/test_page.dart';
+import '../pages/tutorial_page.dart';
 
 class SideDrawer extends StatelessWidget {
   const SideDrawer({Key? key}) : super(key: key);

@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 import '../../models/crop_status_model.dart';
-import '../widgets/bottom_modal_sheet_crop_status.dart';
+import '../../widgets/bottom_modal_sheet_crop_status.dart';
 
 class QualityOfLotsScreen extends StatefulWidget {
   const QualityOfLotsScreen({Key? key}) : super(key: key);

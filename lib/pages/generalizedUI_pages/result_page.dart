@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_login_ui/models/potato_data_model.dart';
-import 'package:flutter_login_ui/pages/realtime_monitoring_screens/line_chart_widgets/variation_in_physical_parameters/co2_conc_line_chart.dart';
-import 'package:flutter_login_ui/pages/widgets/generalizedUI_results_charts/rs_trend_T_line_chart_widget.dart';
-import 'package:flutter_login_ui/pages/widgets/generalizedUI_results_charts/rs_trend_varitety_line_chart_widget.dart';
+import 'package:flutter_login_ui/widgets/generalizedUI_results_charts/total_sugar/total_sugar_trend_with_T_line_chart_widget.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
+
+import '../../widgets/generalizedUI_results_charts/pH/pH_trend_at_T_and_RH_line_chart_widget.dart';
+import '../../widgets/generalizedUI_results_charts/pH/pH_trend_with_T_line_chart_widget.dart';
+import '../../widgets/generalizedUI_results_charts/reducing_sugar/rs_trend_T_line_chart_widget.dart';
+import '../../widgets/generalizedUI_results_charts/reducing_sugar/rs_trend_varitety_line_chart_widget.dart';
+import '../../widgets/generalizedUI_results_charts/starch/starch_trend_at_T_and_RH_line_chart_widget.dart';
+import '../../widgets/generalizedUI_results_charts/starch/starch_trend_with_T_line_chart_widget.dart';
+import '../../widgets/generalizedUI_results_charts/total_sugar/total_sugar_trend_at_T_and_RH_line_chart_widget.dart';
 
 class ResultPage extends StatelessWidget {
 
-  double? result;
+  dynamic result;
   String selectedParameter;
   double? T;
   double? rh;
@@ -53,8 +59,18 @@ class ResultPage extends StatelessWidget {
       return buildTranspirationResults();
     else if (selectedParameter == 'Reducing Sugar')
       return buildReducingSugarResults();
+    else if (selectedParameter == 'pH')
+      return buildPhResults();
+    else if (selectedParameter == 'Total sugar')
+      return buildTotalSugarResults();
+    // else if (selectedParameter == 'Chips color')
+    //   return buildChipsColorResults();
+    else if (selectedParameter == 'Starch')
+      return buildStarchResults();
+    else if (selectedParameter == 'Sprout Status')
+      return buildSproutStatusResults();
     else
-      return buildReducingSugarResults();
+      return buildAppearanceOfPotatoResults();
   }
 
   Widget buildWeightResults(){
@@ -219,6 +235,510 @@ class ResultPage extends StatelessWidget {
     );
   }
 
+  Widget buildPhResults(){
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        isSelected0 ? buildResultCard('Effect of T on pH', '', Container(
+          // clipBehavior: Clip.antiAlias,
+          padding: EdgeInsets.fromLTRB(2,2,2,2),
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+          ),
+          width: double.infinity,
+          height: 300,
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white10,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GradientText(
+                      '5 °C',
+                      colors: [
+                        Colors.blueGrey[200]!,
+                        Colors.blueGrey[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '10 °C',
+                      colors: [
+                        Colors.blue[200]!,
+                        Colors.blue[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '15 °C',
+                      colors: [
+                        Colors.purple[200]!,
+                        Colors.purple[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '20 °C',
+                      colors: [
+                        Colors.green[200]!,
+                        Colors.green[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '25 °C',
+                      colors: [
+                        Colors.red[200]!,
+                        Colors.red[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '30 °C',
+                      colors: [
+                        Colors.yellow[200]!,
+                        Colors.yellow[500]!,
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24,),
+              Expanded(child: Padding(
+                padding: const EdgeInsets.fromLTRB(0,0,14,0),
+                child: PhTrendTLineChartWidget(selectedVariety: selectedVariety!, currentRS: currentRS ?? -1, T: T ?? -1,),
+              )),
+              Text(
+                '(time in days)',
+                style:TextStyle(
+                  color: Color(0xff72719b),
+                ) ,
+              ),
+            ],
+          ),
+
+        )) : SizedBox(),
+        isSelected1 ? buildResultCard('Change in pH at a particular T and RH', '', Container(
+          // clipBehavior: Clip.antiAlias,
+          padding: EdgeInsets.fromLTRB(2,2,16,2),
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+          ),
+          width: double.infinity,
+          height: 250,
+          child: Column(
+            children: [
+              Expanded(child: PhTrendAtTAndRHLineChartWidget(selectedVariety: selectedVariety!, currentRS: currentRS ?? -1, T: T ?? -1,)),
+              Text(
+                '(time in days)',
+                style:TextStyle(
+                  color: Color(0xff72719b),
+                ) ,
+              ),
+            ],
+          ),
+
+        )) : SizedBox(),
+        ElevatedButton(
+          onPressed: (){},
+          child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children:[
+                Icon(Icons.download),
+                Text('Download results'),
+              ]
+          ),
+        ),
+        SizedBox(height: 16,),
+      ],
+    );
+  }
+
+  Widget buildTotalSugarResults(){
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        isSelected0 ? buildResultCard('Effect of T on total sugar', '', Container(
+          // clipBehavior: Clip.antiAlias,
+          padding: EdgeInsets.fromLTRB(2,2,2,2),
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+          ),
+          width: double.infinity,
+          height: 300,
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white10,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GradientText(
+                      '5 °C',
+                      colors: [
+                        Colors.blueGrey[200]!,
+                        Colors.blueGrey[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '10 °C',
+                      colors: [
+                        Colors.blue[200]!,
+                        Colors.blue[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '15 °C',
+                      colors: [
+                        Colors.purple[200]!,
+                        Colors.purple[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '20 °C',
+                      colors: [
+                        Colors.green[200]!,
+                        Colors.green[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '25 °C',
+                      colors: [
+                        Colors.red[200]!,
+                        Colors.red[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '30 °C',
+                      colors: [
+                        Colors.yellow[200]!,
+                        Colors.yellow[500]!,
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24,),
+              Expanded(child: Padding(
+                padding: const EdgeInsets.fromLTRB(0,0,14,0),
+                child: TotalSugarTrendTLineChartWidget(selectedVariety: selectedVariety!, currentRS: currentRS ?? -1, T: T ?? -1,),
+              )),
+              Text(
+                '(time in days)',
+                style:TextStyle(
+                  color: Color(0xff72719b),
+                ) ,
+              ),
+            ],
+          ),
+
+        )) : SizedBox(),
+        isSelected1 ? buildResultCard('Change in total sugar at a particular T and RH', '', Container(
+          // clipBehavior: Clip.antiAlias,
+          padding: EdgeInsets.fromLTRB(2,2,16,2),
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+          ),
+          width: double.infinity,
+          height: 250,
+          child: Column(
+            children: [
+              Expanded(child: TotalSugarTrendAtTAndRHLineChartWidget(selectedVariety: selectedVariety!, currentRS: currentRS ?? -1, T: T ?? -1,)),
+              Text(
+                '(time in days)',
+                style:TextStyle(
+                  color: Color(0xff72719b),
+                ) ,
+              ),
+            ],
+          ),
+
+        )) : SizedBox(),
+        ElevatedButton(
+          onPressed: (){},
+          child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children:[
+                Icon(Icons.download),
+                Text('Download results'),
+              ]
+          ),
+        ),
+        SizedBox(height: 16,),
+      ],
+    );
+  }
+
+  Widget buildStarchResults(){
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        isSelected0 ? buildResultCard('Effect of T on Starch', '', Container(
+          // clipBehavior: Clip.antiAlias,
+          padding: EdgeInsets.fromLTRB(2,2,2,2),
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+          ),
+          width: double.infinity,
+          height: 300,
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white10,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GradientText(
+                      '5 °C',
+                      colors: [
+                        Colors.blueGrey[200]!,
+                        Colors.blueGrey[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '10 °C',
+                      colors: [
+                        Colors.blue[200]!,
+                        Colors.blue[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '15 °C',
+                      colors: [
+                        Colors.purple[200]!,
+                        Colors.purple[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '20 °C',
+                      colors: [
+                        Colors.green[200]!,
+                        Colors.green[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '25 °C',
+                      colors: [
+                        Colors.red[200]!,
+                        Colors.red[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '30 °C',
+                      colors: [
+                        Colors.yellow[200]!,
+                        Colors.yellow[500]!,
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24,),
+              Expanded(child: Padding(
+                padding: const EdgeInsets.fromLTRB(0,0,14,0),
+                child: StarchTrendTLineChartWidget(selectedVariety: selectedVariety!, currentRS: currentRS ?? -1, T: T ?? -1,),
+              )),
+              Text(
+                '(time in days)',
+                style:TextStyle(
+                  color: Color(0xff72719b),
+                ) ,
+              ),
+            ],
+          ),
+
+        )) : SizedBox(),
+        isSelected1 ? buildResultCard('Change in starch at a particular T and RH', '', Container(
+          // clipBehavior: Clip.antiAlias,
+          padding: EdgeInsets.fromLTRB(2,2,16,2),
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+          ),
+          width: double.infinity,
+          height: 250,
+          child: Column(
+            children: [
+              Expanded(child: StarchTrendAtTAndRHLineChartWidget(selectedVariety: selectedVariety!, currentRS: currentRS ?? -1, T: T ?? -1,)),
+              Text(
+                '(time in days)',
+                style:TextStyle(
+                  color: Color(0xff72719b),
+                ) ,
+              ),
+            ],
+          ),
+
+        )) : SizedBox(),
+        ElevatedButton(
+          onPressed: (){},
+          child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children:[
+                Icon(Icons.download),
+                Text('Download results'),
+              ]
+          ),
+        ),
+        SizedBox(height: 16,),
+      ],
+    );
+  }
+
+  Widget buildSproutStatusResults(){
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        result ? buildResultCard('Yes, the image is sprouted', '', SizedBox()): buildResultCard('No, the image is not sprouted', '', SizedBox()),
+        ElevatedButton(
+          onPressed: (){},
+          child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children:[
+                Icon(Icons.download),
+                Text('Download results'),
+              ]
+          ),
+        ),
+        SizedBox(height: 16,),
+      ],
+    );
+  }
+
+  Widget buildAppearanceOfPotatoResults(){
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        isSelected0 ? buildResultCard('Effect of T on pH', '', Container(
+          // clipBehavior: Clip.antiAlias,
+          padding: EdgeInsets.fromLTRB(2,2,16,2),
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+          ),
+          width: double.infinity,
+          height: 300,
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white10,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GradientText(
+                      '5 °C',
+                      colors: [
+                        Colors.blueGrey[200]!,
+                        Colors.blueGrey[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '10 °C',
+                      colors: [
+                        Colors.blue[200]!,
+                        Colors.blue[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '15 °C',
+                      colors: [
+                        Colors.purple[200]!,
+                        Colors.purple[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '20 °C',
+                      colors: [
+                        Colors.green[200]!,
+                        Colors.green[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '25 °C',
+                      colors: [
+                        Colors.red[200]!,
+                        Colors.red[500]!,
+                      ],
+                    ),
+                    GradientText(
+                      '30 °C',
+                      colors: [
+                        Colors.yellow[200]!,
+                        Colors.yellow[500]!,
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24,),
+              Expanded(child: PhTrendTLineChartWidget(selectedVariety: selectedVariety!, currentRS: currentRS ?? -1, T: T ?? -1,)),
+              Text(
+                '(time in days)',
+                style:TextStyle(
+                  color: Color(0xff72719b),
+                ) ,
+              ),
+            ],
+          ),
+
+        )) : SizedBox(),
+        isSelected1 ? buildResultCard('Change in pH at a particular T and RH', '', Container(
+          // clipBehavior: Clip.antiAlias,
+          padding: EdgeInsets.fromLTRB(2,2,16,2),
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+          ),
+          width: double.infinity,
+          height: 250,
+          child: Column(
+            children: [
+              Expanded(child: RSTrendTLineChartWidget(selectedVariety: selectedVariety!, currentRS: currentRS ?? -1, T: T ?? -1,)),
+              Text(
+                '(time in days)',
+                style:TextStyle(
+                  color: Color(0xff72719b),
+                ) ,
+              ),
+            ],
+          ),
+
+        )) : SizedBox(),
+        ElevatedButton(
+          onPressed: (){},
+          child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children:[
+                Icon(Icons.download),
+                Text('Download results'),
+              ]
+          ),
+        ),
+        SizedBox(height: 16,),
+      ],
+    );
+  }
+
+
+
+  //Result page
   Widget buildResultCard(String text, String result, Widget showWidget) {
     return Container(
       margin: EdgeInsets.all(16),
