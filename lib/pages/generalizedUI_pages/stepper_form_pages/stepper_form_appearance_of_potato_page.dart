@@ -36,72 +36,7 @@ class _StepperFormAppearanceOfPotatoPageState extends State<StepperFormAppearanc
   double? storageTime = 5;
   double? storageTemp = 5;
 
-  //STEP3:
-  double? currentRS = 50;
-
-
-
-
   int currentStep = 0;
-  String? dropdownValue = '';
-  List<PotatoData> varietyList = [
-    PotatoData(
-      variety: 'Kennebec',
-      T_ref: 0.00358744,
-      k_ref: -0.0099,
-      E: 158.8,
-      minT: 2,
-      maxT: 10,
-    ),
-    PotatoData(
-      variety: 'Toyoshiro',
-      T_ref: 0.00354924,
-      k_ref: -0.0076,
-      E: 133.7,
-      minT: 2,
-      maxT: 20,
-    ),
-    PotatoData(
-      variety: 'Wuhoon',
-      T_ref: 0.00358744,
-      k_ref: -0.0097,
-      E: 119.1,
-      minT: 2,
-      maxT: 10,
-    ),
-    PotatoData(
-      variety: 'K Badshah',
-      T_ref: 0.00353544,
-      k_ref: -0.002998,
-      E: 213.5,
-      minT: 4,
-      maxT: 15,
-    ),
-    PotatoData(
-      variety: 'Onaway',
-      T_ref: 0.003510619,
-      k_ref: -0.00112,
-      E: 270.3,
-      minT: 5,
-      maxT: 20,
-    ),
-    PotatoData(
-      variety: 'K Lauvkar',
-      T_ref: 0.00353544,
-      k_ref: -0.003118,
-      E: 217.6,
-      minT: 4,
-      maxT: 15,
-    ),
-  ];
-
-  //Initializer
-  @override
-  void initState() {
-    super.initState();
-    dropdownValue = varietyList[0].variety; //initialize default variety to first variety
-    selectedVariety = varietyList[0]; //initialize selected variety to first variety
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -170,9 +105,9 @@ class _StepperFormAppearanceOfPotatoPageState extends State<StepperFormAppearanc
               onStepContinue: (){
                 final isLastStep = currentStep == getSteps().length -1;
 
-                if(isLastStep){
+                if(isLastStep || (!isSelected2 && !isSelected1)){
                   print(widget.selectedParameter);
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ResultPage(selectedParameter: widget.selectedParameter, result: selectedVariety?.getRS(storageTime, storageTemp, currentRS), isSelected0: isSelected0, isSelected1: isSelected1, isSelected2: isSelected2,selectedVariety: selectedVariety, currentRS: currentRS ,)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ResultPage(selectedParameter: widget.selectedParameter, T: storageTemp, isSelected0: isSelected0, isSelected1: isSelected1, isSelected2: isSelected2, storageTime: storageTime ,)));
                   //send data to server
                 } else{
                   setState(() => currentStep++ );
@@ -215,7 +150,7 @@ class _StepperFormAppearanceOfPotatoPageState extends State<StepperFormAppearanc
                   setState(() => isSelected0 = !isSelected0);
                 },
                 title: Text(
-                  'Effect of T on Total Sugars',
+                  'Effect of T on appearance of Potato',
                   style: TextStyle(
                     color: Colors.white70,
                   ),
@@ -232,7 +167,7 @@ class _StepperFormAppearanceOfPotatoPageState extends State<StepperFormAppearanc
                   setState(() => isSelected1 = !isSelected1);
                 },
                 title: Text(
-                  'Change in Total Sugars at a particular T and RH',
+                  'Change in appearance of Potato at given T',
                   style: TextStyle(
                     color: Colors.white70,
                   ),
@@ -241,6 +176,23 @@ class _StepperFormAppearanceOfPotatoPageState extends State<StepperFormAppearanc
                   value: isSelected1,
                   onChanged: (isBool){
                     setState(() => isSelected1 = !isSelected1);
+                  },
+                ),
+              ),
+              ListTile(
+                onTap: (){
+                  setState(() => isSelected2 = !isSelected2);
+                },
+                title: Text(
+                  'Appearance of Potato during storage at given T and time',
+                  style: TextStyle(
+                    color: Colors.white70,
+                  ),
+                ),
+                leading: Checkbox(
+                  value: isSelected2,
+                  onChanged: (isBool){
+                    setState(() => isSelected2 = !isSelected2);
                   },
                 ),
               ),
@@ -275,7 +227,7 @@ class _StepperFormAppearanceOfPotatoPageState extends State<StepperFormAppearanc
               SizedBox(
                 height: 24,
               ),
-              TextField(
+              isSelected1 || isSelected2 ? TextField(
                 decoration: InputDecoration(
                   label: Text('Enter temperature',style: TextStyle(
                     color: Colors.white54,
@@ -288,15 +240,15 @@ class _StepperFormAppearanceOfPotatoPageState extends State<StepperFormAppearanc
                 onChanged: (value){
                   setState(() => storageTemp = double.tryParse(value) ?? 0);
                 },
-              ),
+              ) : SizedBox(),
               SizedBox(
                 height: 8,
               ),
 
               //Show Textfield only if 'Prediction of RS after a given time' is selected otherwise show an empty SizedBox i.e nothing
-              TextField(
+              isSelected2 ? TextField(
                 decoration: InputDecoration(
-                  label: Text('Enter relative humidity (%)',style: TextStyle(
+                  label: Text('Enter time (days)',style: TextStyle(
                     color: Colors.white54,
                   ),),
                   border: OutlineInputBorder(),
@@ -307,7 +259,7 @@ class _StepperFormAppearanceOfPotatoPageState extends State<StepperFormAppearanc
                 onChanged: (value){
                   setState(() => storageTime = double.tryParse(value) ?? 0);
                 },
-              ),
+              ): SizedBox(),
             ],
           ),
         ),

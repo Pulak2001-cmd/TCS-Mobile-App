@@ -24,7 +24,7 @@ class _ManageYourStockPageState extends State<ManageYourStockPage> {
   //Method to capture photo from camera
   Future capturePhoto () async{
     //XFile variable to store selected image path
-    await _picker.pickImage(source: ImageSource.camera);
+    imagePath = await _picker.pickImage(source: ImageSource.camera);
   }
 
   //Method to pick image from gallery
@@ -34,7 +34,8 @@ class _ManageYourStockPageState extends State<ManageYourStockPage> {
   }
 
   List<CropStatus> cropStatusList = [
-    CropStatus(sproutStatus: 'sprouted', weightLossStatus: 'Weight loss more than critical limit', diseaseStatus: 'Diseased', overallHealthStatus: 'Not healthy'),
+    CropStatus(sproutStatus: 'sprouted', weightLossStatus: 'Weight loss more than critical limit', diseaseStatus: 'Diseased', overallHealthStatus: 'Not healthy', shelfLifeAmbient: 15),
+    CropStatus(sproutStatus: 'sprouted', weightLossStatus: 'Weight loss more than critical limit', diseaseStatus: 'Diseased', overallHealthStatus: 'Not healthy', shelfLifeAmbient: -1),
   ];
 
   @override
@@ -70,7 +71,6 @@ class _ManageYourStockPageState extends State<ManageYourStockPage> {
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w500,
-                fontSize: 20,
               ),),
               Expanded(
                 child: Container(
@@ -87,7 +87,7 @@ class _ManageYourStockPageState extends State<ManageYourStockPage> {
                       itemCount: cropStatusList.length,
                       itemBuilder: (context, index) {
                         return Card(
-                          color: cropStatusList[index].overallHealthStatus=='Healthy' ? HexColor('#A5E1AD') : HexColor('#FF5C58'),
+                          color: cropStatusList[index].shelfLifeAmbient! > 0 ? HexColor('#A5E1AD') : HexColor('#FF5C58'),
                           child: ListTile(
                             onTap: ()=> showModalBottomSheet(
                               isScrollControlled: true,
@@ -97,12 +97,10 @@ class _ManageYourStockPageState extends State<ManageYourStockPage> {
                             ),
                             leading: CircleAvatar(
                               backgroundImage: buildBackgroundImage(index),
-                              child: cropStatusList[index].image == null? null: Container(
-                                clipBehavior: Clip.antiAlias,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(1000),
-                                  ),
-                                  child: Image.file(File((cropStatusList[index].image)!),)),
+                              child: cropStatusList[index].image == null? null: ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: Image.file(File((cropStatusList[index].image)!),fit: BoxFit.cover,)
+                              ),
                               ),
                             title: Text(
                               'Potato',
@@ -147,7 +145,7 @@ class _ManageYourStockPageState extends State<ManageYourStockPage> {
             onPressed: () async{
               await openModal();
               setState(() {
-                cropStatusList.add(CropStatus(image: imagePath?.path, sproutStatus: 'Sprouted', weightLossStatus: 'Weight loss more than critical limit', diseaseStatus: 'Not diseased', overallHealthStatus: 'Healthy'));
+                cropStatusList.add(CropStatus(image: imagePath?.path, sproutStatus: 'Sprouted', weightLossStatus: 'Weight loss more than critical limit', diseaseStatus: 'Not diseased', overallHealthStatus: 'Healthy', shelfLifeAmbient: 10));
               });
             },
           ),

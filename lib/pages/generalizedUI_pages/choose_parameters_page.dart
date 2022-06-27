@@ -23,7 +23,7 @@ class ChooseParametersPage extends StatefulWidget {
 class _ChooseParametersPageState extends State<ChooseParametersPage> {
   PotatoData potatoData = PotatoData(
     variety: 'Kennebec',
-    T_ref: 0.00358744,
+    T_ref_reciprocal: 0.00358744,
     k_ref: -0.0099,
     E: 158.8,
     minT: 2,
@@ -57,15 +57,15 @@ class _ChooseParametersPageState extends State<ChooseParametersPage> {
           body:SafeArea(
             child: ListView(
               children: [
-                buildListTile('Weight',FontAwesomeIcons.addressCard,context,),
-                buildListTile('Transpiration',FontAwesomeIcons.addressCard, context,),
-                buildListTile('Reducing sugar',FontAwesomeIcons.addressCard,context,),
-                buildListTile('pH',FontAwesomeIcons.addressCard,context,),
-                buildListTile('Total sugar',FontAwesomeIcons.addressCard,context,),
-                buildListTile('Chips Color',FontAwesomeIcons.addressCard,context,),
-                buildListTile('Starch',FontAwesomeIcons.addressCard,context,),
-                buildListTile('Sprout Status',FontAwesomeIcons.addressCard,context,),
-                buildListTile('Appearance of potato',FontAwesomeIcons.addressCard,context,),
+                buildListTile('Weight','assets/images/generalizedUI_page/parameters/weight.jpg',context,),
+                buildListTile('Transpiration','assets/images/generalizedUI_page/parameters/transpiration.jpg', context,),
+                buildListTile('Reducing sugar','assets/images/generalizedUI_page/parameters/reducing_sugar.jpg',context,),
+                buildListTile('pH','assets/images/generalizedUI_page/parameters/pH.jpg',context,),
+                buildListTile('Total sugar','assets/images/generalizedUI_page/parameters/total_sugar.jpg',context,),
+                buildListTile('Chips Color','assets/images/generalizedUI_page/parameters/chips_color.jpg',context,),
+                buildListTile('Starch','assets/images/generalizedUI_page/parameters/starch.jpg',context,),
+                buildListTile('Sprout Status','assets/images/generalizedUI_page/parameters/sprout_status.jpg',context,),
+                buildListTile('Appearance of potato','assets/images/generalizedUI_page/parameters/appearance_of_potato.jpg',context,),
               ],
             ),
           ),
@@ -75,7 +75,7 @@ class _ChooseParametersPageState extends State<ChooseParametersPage> {
   }
 
   // Widget buildCard(HexColor color1, HexColor color2, String title, IconData icon, BuildContext context, ) {
-  Widget buildListTile(String title, IconData icon, BuildContext context,) {
+  Widget buildListTile(String title, String assetName, BuildContext context,) {
     return Container(
       clipBehavior: Clip.antiAlias,
       margin: EdgeInsets.symmetric(vertical: 4,horizontal: 16),
@@ -89,41 +89,9 @@ class _ChooseParametersPageState extends State<ChooseParametersPage> {
         ),],
       ),
 
-      // child: TextButton(
-      //   style: ButtonStyle(
-      //     padding: MaterialStateProperty.all(EdgeInsets.zero),
-      //
-      //   ),
-      //   onPressed: (){
-      //     setState(()=> selectedParameter = title);
-      //     print(selectedParameter);
-      //   },
-      //   child: ListTile(
-      //     leading: Icon(
-      //       icon,
-      //       color: Colors.white70,
-      //     ),
-      //     title: Text(
-      //         title,
-      //       style: TextStyle(
-      //         color: Colors.white70,
-      //       ),
-      //     ),
-      //     onTap: () {
-      //       setState(()=> selectedParameter = title);
-      //       print(selectedParameter);
-      //       Navigator.push(
-      //         context,
-      //         MaterialPageRoute(builder: (context) => stepperFormPage),
-      //       );
-      //     },
-      //   ),
-      // ),
-
       child: ListTile(
-          leading: Icon(
-            icon,
-            color: Colors.white70,
+          leading: CircleAvatar(
+            backgroundImage: AssetImage(assetName),
           ),
           title: Text(
             title,

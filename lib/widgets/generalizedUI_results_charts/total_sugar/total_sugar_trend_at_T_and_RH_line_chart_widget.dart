@@ -4,6 +4,8 @@ import 'package:flutter_login_ui/models/potato_data_model.dart';
 import 'package:scidart/numdart.dart';
 import 'dart:math';
 
+import '../../../common/utility_functions.dart';
+
 class TotalSugarTrendAtTAndRHLineChartWidget extends StatefulWidget {
   PotatoData selectedVariety;
   double currentRS;
@@ -39,12 +41,13 @@ class _TotalSugarTrendAtTAndRHLineChartWidgetState extends State<TotalSugarTrend
       future: futureLineChartData(timeVec, totalSugar),
       builder: (context,snapshot){
         if(snapshot.hasData){
+          List<FlSpot> flattenedData = snapshot.data as List<FlSpot>;
           return LineChart(
               LineChartData(
                   minX:0,
                   maxX: 100,
-                  minY: 0,
-                  maxY: 14,
+                  minY: roundToPrevTwo(getMin(flattenedData)),
+                  maxY: roundToNextTwo(getMax(flattenedData)),
                   gridData: FlGridData(
                     show: true,
                     getDrawingHorizontalLine: (val) {
@@ -69,7 +72,7 @@ class _TotalSugarTrendAtTAndRHLineChartWidgetState extends State<TotalSugarTrend
                   ),
                   lineBarsData: [
                     LineChartBarData(
-                      spots: snapshot.data as List<FlSpot>,
+                      spots: flattenedData,
                       isCurved: true,
                       gradient: LinearGradient(
                         colors: [
@@ -106,7 +109,7 @@ class _TotalSugarTrendAtTAndRHLineChartWidgetState extends State<TotalSugarTrend
                         sideTitles: SideTitles(
                           getTitlesWidget: leftTitleWidgets,
                           showTitles: true,
-                          interval: 1,
+                          interval: axisLabelsInterval(flattenedData),
                           reservedSize: 40,
                         )
                     ),
@@ -139,12 +142,7 @@ class _TotalSugarTrendAtTAndRHLineChartWidgetState extends State<TotalSugarTrend
       fontSize: 14,
     );
     String text;
-    if(value.toInt()%2 == 0) {
-      text = '${value.toStringAsFixed(0)}';
-    } else {
-      text = '';
-    }
-
+    text = '${value.toStringAsFixed(1)}';
     return Text(text, style: style, textAlign: TextAlign.center);
   }
   Widget bottomTitleWidgets(double value, TitleMeta meta) {

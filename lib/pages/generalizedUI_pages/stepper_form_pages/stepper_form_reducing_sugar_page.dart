@@ -3,10 +3,11 @@ import 'package:flutter_login_ui/models/potato_data_model.dart';
 import 'package:flutter_login_ui/pages/generalizedUI_pages/result_page.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class StepperFormReducingSugarPage extends StatefulWidget {
-  String selectedParameter;
-  StepperFormReducingSugarPage({Key? key, required this.selectedParameter}) : super(key: key);
+  final String selectedParameter;
+  const StepperFormReducingSugarPage({Key? key, required this.selectedParameter}) : super(key: key);
 
   @override
   State<StepperFormReducingSugarPage> createState() => _StepperFormReducingSugarPageState();
@@ -32,79 +33,59 @@ class _StepperFormReducingSugarPageState extends State<StepperFormReducingSugarP
   bool isSelected0 = false, isSelected1= false, isSelected2= false;
 
   //STEP2:
-  PotatoData? selectedVariety;
-  double? storageTime = 5;
-  double? storageTemp = 5;
+  late PotatoData selectedVariety;
+  double? storageTime;
+  double? storageTemp;
 
   //STEP3:
-  double? currentRS = 50;
+  double? currentRS;
 
 
 
 
   int currentStep = 0;
-  String? dropdownValue = '';
-  List<PotatoData> varietyList = [
-    PotatoData(
-        variety: 'Kennebec',
-        T_ref: 0.00358744,
-        k_ref: -0.0099,
-        E: 158.8,
-        minT: 2,
-        maxT: 10,
-    ),
-    PotatoData(
-      variety: 'Toyoshiro',
-      T_ref: 0.00354924,
-      k_ref: -0.0076,
-      E: 133.7,
-      minT: 2,
-      maxT: 20,
-    ),
-    PotatoData(
-      variety: 'Wuhoon',
-      T_ref: 0.00358744,
-      k_ref: -0.0097,
-      E: 119.1,
-      minT: 2,
-      maxT: 10,
-    ),
-    PotatoData(
-      variety: 'K Badshah',
-      T_ref: 0.00353544,
-      k_ref: -0.002998,
-      E: 213.5,
-      minT: 4,
-      maxT: 15,
-    ),
-    PotatoData(
-      variety: 'Onaway',
-      T_ref: 0.003510619,
-      k_ref: -0.00112,
-      E: 270.3,
-      minT: 5,
-      maxT: 20,
-    ),
-    PotatoData(
-      variety: 'K Lauvkar',
-      T_ref: 0.00353544,
-      k_ref: -0.003118,
-      E: 217.6,
-      minT: 4,
-      maxT: 15,
-    ),
+  late String dropdownValue;
+  late String dropdownValue2;
+  List<String> varietyList = [
+    'Saturna',
+    'Kennebec',
+    'Agria',
+    'Toyoshiro',
+    'K Chipsona1',
+    'K Jyoti',
+    'Wu-foon',
+    'Norchip',
+    'K Chipsona2',
+    'Vangodh',
+    'Bintje',
+    'Simcoe',
+    'Onaway',
+    'Cardinal',
+    'K Badshah',
+    'K Lauvkar',
+    'None'
+  ];
+
+  List<String> varietyTypeList = [
+    'Cold-sensitive or High-sugar accumulating',
+    'Cold-resistant or Low-sugar accumulating',
   ];
 
   //Initializer
   @override
   void initState() {
     super.initState();
-    dropdownValue = varietyList[0].variety; //initialize default variety to first variety
-    selectedVariety = varietyList[0]; //initialize selected variety to first variety
+    dropdownValue = varietyList[0]; //initialize default variety to first variety i.e Saturna
+    dropdownValue2 = varietyTypeList[0]; //initialize default varietyType to first varietyType i.e. Cold-sensitive or High-sugar accumulating
+    selectedVariety = PotatoData();
+    selectedVariety.initializeWithAllDayData(dropdownValue);
+
   }
+
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -167,11 +148,16 @@ class _StepperFormReducingSugarPageState extends State<StepperFormReducingSugarP
                   ),
                 );
               },
-              onStepContinue: (){
+              onStepContinue: () async {
                 final isLastStep = currentStep == getSteps().length -1;
 
-                if(isLastStep){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ResultPage(selectedParameter: widget.selectedParameter, result: selectedVariety?.getRS(storageTime, storageTemp, currentRS), isSelected0: isSelected0, isSelected1: isSelected1, isSelected2: isSelected2,selectedVariety: selectedVariety, currentRS: currentRS ,)));
+
+                if(isLastStep || (!isSelected0 && !isSelected1 && currentStep == 1))  {
+                  print(selectedVariety.variety);
+                  double? result;
+                  (!isSelected0 && !isSelected1 && currentStep == 1) ? result = null: result = await selectedVariety.RS_day(storageTime, storageTemp, currentRS);
+
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ResultPage(selectedParameter: widget.selectedParameter,result: result, isSelected0: isSelected0, isSelected1: isSelected1, isSelected2: isSelected2,selectedVariety: selectedVariety, currentRS: currentRS , T: storageTemp,)));
                   //send data to server
                 } else{
                   setState(() => currentStep++ );
@@ -291,7 +277,7 @@ class _StepperFormReducingSugarPageState extends State<StepperFormReducingSugarP
                 SizedBox(
                   height: 24,
                 ),
-                TextField(
+                (isSelected0 || isSelected1) ? TextField(
                   decoration: InputDecoration(
                     label: Text('Enter temperature',style: TextStyle(
                       color: Colors.white54,
@@ -304,7 +290,7 @@ class _StepperFormReducingSugarPageState extends State<StepperFormReducingSugarP
                   onChanged: (value){
                     setState(() => storageTemp = double.tryParse(value) ?? 0);
                   },
-                ),
+                ) : SizedBox(),
                 SizedBox(
                   height: 8,
                 ),
@@ -344,21 +330,60 @@ class _StepperFormReducingSugarPageState extends State<StepperFormReducingSugarP
                     elevation: 0,
                     dropdownColor: Colors.grey[900],
                     style: const TextStyle(color: Colors.white),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        dropdownValue = newValue!;
-                        selectedVariety = varietyList.where((element) => element.variety == dropdownValue).first;
+                    onChanged: (String? newValue) async{
+
+                      dropdownValue = newValue!;
+                      selectedVariety.variety = dropdownValue;
+                      await selectedVariety.initializeWithAllDayData(dropdownValue);
+                      setState(()  {
+                        print(selectedVariety.variety);
                       });
                     },
                     items: varietyList
-                        .map<DropdownMenuItem<String>>((PotatoData value) {
+                        .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
-                        value: value.variety,
-                        child: Text(value.variety!),
+                        value: value,
+                        child: Text(value),
                       );
                     }).toList(),
                   ),
                 ),
+                SizedBox(
+                  height: 8,
+                ),
+                selectedVariety.variety == 'None'? Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black38),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: DropdownButton<String>(
+                    value: dropdownValue2,
+                    isExpanded: true,
+                    underline: Container(
+                      color: Colors.transparent,
+                    ),
+                    icon: const Icon(Icons.arrow_drop_down),
+                    elevation: 0,
+                    dropdownColor: Colors.grey[900],
+                    style: const TextStyle(color: Colors.white),
+                    onChanged: (String? newValue) async{
+
+                      dropdownValue2 = newValue!;
+                      print(dropdownValue2);
+                      await selectedVariety.initializeWithAllDayData(dropdownValue,selectedVarietyType: dropdownValue2);
+                      setState(()  {
+                      });
+                    },
+                    items: varietyTypeList
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ) : SizedBox(),
               ],
             ),
           ),
@@ -373,7 +398,7 @@ class _StepperFormReducingSugarPageState extends State<StepperFormReducingSugarP
             ),
           ),
           content: Container(
-            child: Column(
+            child: (isSelected0 || isSelected1) ? Column(
               children: [
                 Align(
                   alignment: Alignment.topLeft,
@@ -435,6 +460,8 @@ class _StepperFormReducingSugarPageState extends State<StepperFormReducingSugarP
                   ),
                 ),
               ],
+            ) : Text(
+              'Nothing required, go to next step'
             ),
           ),
         ),

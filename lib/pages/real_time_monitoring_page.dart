@@ -6,9 +6,13 @@ import 'package:flutter_login_ui/pages/realtime_monitoring_screens/quality_of_lo
 import 'package:flutter_login_ui/pages/realtime_monitoring_screens/variantions_in_physical_parameters_screen.dart';
 import 'package:flutter_login_ui/pages/realtime_monitoring_screens/current_conditions_screen.dart';
 import 'package:flutter_login_ui/pages/realtime_monitoring_screens/variations_in_predicted_parameters_screen.dart';
+import 'package:flutter_login_ui/providers/alert_provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+
+import '../widgets/bottom_modal_sheet.dart';
 
 
 
@@ -38,12 +42,6 @@ class _RealTimeMonitoringPageState extends State<RealTimeMonitoringPage> {
   int activeIndex0 = 0;
   int activeIndex1 = 0;
   int activeIndex2 = 0;
-  final urls = [
-    'https://images.edrawmax.com/images/knowledge/line-graph-1-what-is.jpg',
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Pushkin_population_history.svg/1200px-Pushkin_population_history.svg.png',
-    'https://images.edrawmax.com/images/knowledge/line-graph-1-what-is.jpg',
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Pushkin_population_history.svg/1200px-Pushkin_population_history.svg.png',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +69,33 @@ class _RealTimeMonitoringPageState extends State<RealTimeMonitoringPage> {
           elevation: 0,
           backgroundColor: Colors.transparent,
           iconTheme: IconThemeData(color: Colors.white),
+          actions: [
+            Container(
+              child: TextButton(
+                onPressed: ()=> showModalBottomSheet(
+                  isScrollControlled: true,
+                  context: context,
+                  builder: (context) => buildSheet(context),
+                  backgroundColor: Colors.transparent,
+                ),
+                child: Stack(
+                  children: <Widget>[
+                    Icon(Icons.notifications,
+                      color: Colors.white,),
+                    Positioned(
+                      right: 0,
+                      child: Container(
+                        padding: EdgeInsets.all(1),
+                        decoration: BoxDecoration( color: Colors.red, borderRadius: BorderRadius.circular(6),),
+                        constraints: BoxConstraints( minWidth: 12, minHeight: 12, ),
+                        child: Text( Provider.of<AlertProvider>(context).getLength().toString(), style: TextStyle(color: Colors.white, fontSize: 8,), textAlign: TextAlign.center,),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            )
+          ],
         ),
         body: SafeArea(
           child: IndexedStack(

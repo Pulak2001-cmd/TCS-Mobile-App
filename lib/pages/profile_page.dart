@@ -1,8 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_login_ui/services/auth.dart';
-
-import '../widgets/bottom_modal_sheet.dart';
 import '../widgets/header_widget.dart';
 
 
@@ -39,33 +37,6 @@ class _ProfilePageState extends State<ProfilePage>{
               )
           ),
         ),
-        actions: [
-          Container(
-            child: TextButton(
-              onPressed: ()=> showModalBottomSheet(
-                    isScrollControlled: true,
-                    context: context,
-                    builder: (context) => buildSheet(context),
-                backgroundColor: Colors.transparent,
-              ),
-              child: Stack(
-                children: <Widget>[
-                  Icon(Icons.notifications,
-                  color: Colors.white,),
-                  Positioned(
-                    right: 0,
-                    child: Container(
-                      padding: EdgeInsets.all(1),
-                      decoration: BoxDecoration( color: Colors.red, borderRadius: BorderRadius.circular(6),),
-                      constraints: BoxConstraints( minWidth: 12, minHeight: 12, ),
-                      child: Text( '5', style: TextStyle(color: Colors.white, fontSize: 8,), textAlign: TextAlign.center,),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          )
-        ],
       ),
       body: SingleChildScrollView(
         child: Stack(

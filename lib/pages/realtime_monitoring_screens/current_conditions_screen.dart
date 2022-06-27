@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_login_ui/models/potato_data_model.dart';
+import 'package:flutter_login_ui/providers/alert_provider.dart';
+import 'package:flutter_login_ui/providers/temp_crop_list_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:http/http.dart' as http;
 import '../../models/user_model.dart';
@@ -17,32 +20,20 @@ class CurrentConditionsScreen extends StatefulWidget {
 
 class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
 
-  void getData() async{
-    http.Response response = await http.get(Uri.parse('https://6295fb06810c00c1cb6ca55f.mockapi.io/api/temperature-data'));
-    print(response.body);
-  }
-
   //Working stream
   Stream<List<User>> readUsers() {
     return FirebaseFirestore.instance.collection('Users').snapshots().map((snapshot) => snapshot.docs.map((doc) => User.fromJson(doc.data())).toList()) ;
   }
 
-  //Utility function to calcualte time in days between 2 given dates
+  //Utility function to calculate time in days between 2 given dates
   double calculateTimeDifference(DateTime currentDate, DateTime startDate){
     return double.parse((currentDate.difference(startDate).inHours/24).toStringAsFixed(2));
   }
 
   //index for Carousel
   int activeIndex0 = 0;
-  int temperature = 25;
-  double relativeHumidity =97;
-  double ethyleneConc = 448;
-  double CO2Conc = 400;
-  double shelfLife = 22.4;
-  double weight = 966;
-  DateTime startDate = DateTime.now().subtract(const Duration(hours: 40));
+  Color textColor = Colors.white70;
   DateTime currentDate = DateTime.now();
-  double initialWeight = 999;
 
   @override
   Widget build(BuildContext context) {
@@ -97,14 +88,18 @@ class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
                               final users = snapshot.data as List<User>;
 
                               User user = users[0];
+                              //Adding alerts
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                Provider.of<AlertProvider>(context,listen: false).checkForAlerts(context, user);
+                              });
 
                               return Column(
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  buildText('Temperature: ${user.temperature} °C'),
-                                  buildText('Relative Humidity: ${user.relativeHumidity} %'),
-                                  buildText('Ethylene Conc: ${user.ethyleneConc}ppm'),
-                                  buildText('CO2 Conc: ${user.co2Conc}ppm'),
+                                  buildText('Temperature: ${user.temperature} °C', user),
+                                  buildText('Relative Humidity: ${user.relativeHumidity} %', user),
+                                  buildText('Ethylene Conc: ${user.ethyleneConc}ppm', user),
+                                  buildText('CO2 Conc: ${user.co2Conc}ppm', user),
                                 ],
                               );
                             } else if(snapshot.hasError){
@@ -115,8 +110,6 @@ class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
                           },
                         )
                       ),
-
-
                     ],
                   )
                 ),
@@ -164,21 +157,26 @@ class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
                               final users = snapshot.data as List<User>;
 
                               User user = users[0];
+                              double initialWeight = (user.initialWeight?.toDouble())!;
+                              double transpirationRate = PotatoData.getTranspirationRate(user.temperature, user.relativeHumidity);
+                              double time = calculateTimeDifference(currentDate, user.startDate!);
+                              double currentWeight = PotatoData.getWeightloss(initialWeight, transpirationRate, time);
+                              double currentWeightlossPercentage = PotatoData.calculateCurrentWeightlossPercentage(initialWeight,currentWeight);
+                              double shelfLife = PotatoData.calculateRemainingShelflife(
+                                  currentWeightlossPercentage,
+                                  transpirationRate
+                              );
+                              shelfLife = shelfLife < 0 ? 0: shelfLife;
 
                               return Column(
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  buildTextAlert('Lots Unhealthy'),
-                                  buildText('Shelf Life: ${PotatoData.calculateRemainingShelflife(
-                                      PotatoData.calculateCurrentWeightlossPercentage(),
-                                      PotatoData.getTranspirationRate(user.temperature, user.relativeHumidity)
-                                      ).toStringAsFixed(2)} days'
+                                  (Provider.of<CropListProvider>(context).cropStatusList.length != 0) ?
+                                    Provider.of<CropListProvider>(context).cropStatusList.last.overallHealthStatus == 'Healthy'? buildTextAlert('Lots Healthy') : buildTextAlert('Lots Unhealthy'):
+                                      SizedBox(),
+                                  buildText('Shelf Life: ${shelfLife.toStringAsFixed(2)} days', user
                                   ),
-                                  buildText('Weight: ${PotatoData.getWeightloss(
-                                      user.initialWeight, 
-                                      PotatoData.getTranspirationRate(user.temperature, user.relativeHumidity),
-                                      calculateTimeDifference(currentDate, user.startDate!)
-                                      ).toStringAsFixed(2)} Kgs'
+                                  buildText('Weight: ${currentWeight.toStringAsFixed(2)} Kgs', user
                                   ),
                                 ],
                               );
@@ -241,10 +239,10 @@ class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
                                   return Column(
                                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: [
-                                      buildText('Start Date: ${DateFormat('dd-MM-yyyy').format(user.startDate!)}'),
-                                      buildText('Current Date: ${DateFormat('dd-MM-yyyy').format(currentDate)}'),
-                                      buildText('Total Days: ${calculateTimeDifference(currentDate, user.startDate!)}'),
-                                      buildText('Initial weight: ${user.initialWeight} kgs'),
+                                      buildText('Start Date: ${DateFormat('dd-MM-yyyy').format(user.startDate!)}', user),
+                                      buildText('Current Date: ${DateFormat('dd-MM-yyyy').format(currentDate)}', user),
+                                      buildText('Total Days: ${calculateTimeDifference(currentDate, user.startDate!)}', user),
+                                      buildText('Initial weight: ${user.initialWeight} kgs', user),
                                     ],
                                   );
                                 } else if(snapshot.hasError){
@@ -268,11 +266,28 @@ class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
     );
   }
 
-  Widget buildText(String text){
+  Widget buildText(String text, User user){
+
+    // if(user.temperature! > 50){
+    //   WidgetsBinding.instance
+    //       .addPostFrameCallback((_) => setState((){textColor = Colors.red;}));
+    // }
+    // if(user.relativeHumidity! < 10 ){
+    //   WidgetsBinding.instance
+    //       .addPostFrameCallback((_) => setState((){textColor = Colors.red;}));
+    // }
+    // if(user.ethyleneConc! > 430){
+    //   WidgetsBinding.instance
+    //       .addPostFrameCallback((_) => setState((){textColor = Colors.red;}));
+    // }
+    // if(user.co2Conc! > 500){
+    //   WidgetsBinding.instance
+    //       .addPostFrameCallback((_) => setState((){textColor = Colors.red;}));
+    // }
     return Text(
       text,
       style: TextStyle(
-        color: Colors.white70,
+        color: textColor,
         fontSize: 16,
       ),
     );
@@ -284,14 +299,14 @@ class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children:[
-          Icon(FontAwesomeIcons.triangleExclamation,color: HexColor('#FF5F6D'),),
+          text == 'Lots Unhealthy' ? Icon(FontAwesomeIcons.triangleExclamation,color: HexColor('#FF5F6D'),) : Icon(FontAwesomeIcons.solidFaceSmile,color: Colors.white,) ,
           SizedBox(
             width: 16,
           ),
           Text(
             text,
             style: TextStyle(
-              color: HexColor('#FF5F6D'),
+              color: text == 'Lots Unhealthy' ? HexColor('#FF5F6D') : Colors.white,
               fontSize: 20,
               fontWeight: FontWeight.normal,
             ),

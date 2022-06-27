@@ -30,70 +30,18 @@ class _StepperFormWeightPageState extends State<StepperFormWeightPage> {
   }
 
   bool isSelected0 = false, isSelected1= false, isSelected2= false;
+
   int currentStep = 0;
-  String? dropdownValue = '';
-  List<PotatoData> varietyList = [
-    PotatoData(
-      variety: 'Kennebec',
-      T_ref: 0.00358744,
-      k_ref: -0.0099,
-      E: 158.8,
-      minT: 2,
-      maxT: 10,
-    ),
-    PotatoData(
-      variety: 'Toyoshiro',
-      T_ref: 0.00354924,
-      k_ref: -0.0076,
-      E: 133.7,
-      minT: 2,
-      maxT: 20,
-    ),
-    PotatoData(
-      variety: 'Wuhoon',
-      T_ref: 0.00358744,
-      k_ref: -0.0097,
-      E: 119.1,
-      minT: 2,
-      maxT: 10,
-    ),
-    PotatoData(
-      variety: 'K Badshah',
-      T_ref: 0.00353544,
-      k_ref: -0.002998,
-      E: 213.5,
-      minT: 4,
-      maxT: 15,
-    ),
-    PotatoData(
-      variety: 'Onaway',
-      T_ref: 0.003510619,
-      k_ref: -0.00112,
-      E: 270.3,
-      minT: 5,
-      maxT: 20,
-    ),
-    PotatoData(
-      variety: 'K Lauvkar',
-      T_ref: 0.00353544,
-      k_ref: -0.003118,
-      E: 217.6,
-      minT: 4,
-      maxT: 15,
-    ),
-  ];
+  TextEditingController tController = TextEditingController();
+  TextEditingController rhController = TextEditingController();
+  TextEditingController currentWeightController = TextEditingController();
+  TextEditingController currentWeightlossController = TextEditingController();
 
-  PotatoData? selectedVariety;
-  double? storageTime = 5;
-  double? storageTemp = 5;
-  double? currentRS = 50;
+  double? rh =5;
+  double? T =5;
+  double? currentWeightloss =5;
+  double? currentWeight;
 
-  @override
-  void initState() {
-    super.initState();
-    dropdownValue = varietyList[0].variety;
-    selectedVariety = varietyList[0];
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -163,12 +111,15 @@ class _StepperFormWeightPageState extends State<StepperFormWeightPage> {
                 final isLastStep = currentStep == getSteps().length -1;
 
                 if(isLastStep){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ResultPage(selectedParameter: widget.selectedParameter, result: selectedVariety?.getRS(storageTime, storageTemp, currentRS))));
-                  print(selectedVariety?.getRS(storageTime, storageTemp, currentRS));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ResultPage(selectedParameter: widget.selectedParameter, T: T, rh: rh, currentWeightloss: currentWeightloss,isSelected0: isSelected0, isSelected1: isSelected1,isSelected2: isSelected2, currentWeight: currentWeight)));
                   //send data to server
+                } else if(!isSelected0 && !isSelected1 && currentStep !=1){
+                  setState(() => currentStep+=2 );
                 } else{
                   setState(() => currentStep++ );
                 }
+
+
               },
               onStepCancel: (){
                 final isFirstStep = currentStep == 0;
@@ -181,48 +132,23 @@ class _StepperFormWeightPageState extends State<StepperFormWeightPage> {
               },
             ),
           ),
-          // floatingActionButton: SafeArea(
-          //   child: Container(
-          //     // margin: EdgeInsets.only(left: 24),
-          //     width: MediaQuery.of(context).size.width - 32,
-          //     child: Row(
-          //       children: [
-          //         ElevatedButton(
-          //           style: ButtonStyle(
-          //             shape: MaterialStateProperty.all(
-          //               CircleBorder(),
-          //             ),
-          //             padding: MaterialStateProperty.all(EdgeInsets.all(8.0)),
-          //           ),
-          //           onPressed: (){},
-          //           child: Icon(Icons.arrow_back),
-          //         ),
-          //         Expanded(child: SizedBox()),
-          //         ElevatedButton(
-          //           style: ButtonStyle(
-          //             shape: MaterialStateProperty.all(
-          //               CircleBorder(),
-          //             ),
-          //             padding: MaterialStateProperty.all(EdgeInsets.all(8.0)),
-          //           ),
-          //           onPressed: (){},
-          //           child: Icon(Icons.arrow_forward),
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          // ),
         ),
       ),
     );
   }
 
   List<Step> getSteps() {
-    return [
+     List <Step> listOfSteps = [
       Step(
         state: currentStep>0 ? StepState.complete : StepState.indexed,
         isActive: currentStep>=0,
-        title: Text('Step 1'),
+        title: Text(
+          'Step 1',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 16,
+          ),
+        ),
         content: Container(
           // color: Colors.white10,
           child: Column(
@@ -285,11 +211,28 @@ class _StepperFormWeightPageState extends State<StepperFormWeightPage> {
       Step(
         state: currentStep>1 ? StepState.complete : StepState.indexed,
         isActive: currentStep>=1,
-        title: Text('Step 2'),
+        title: Text(
+          'Step 2',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 16,
+          ),
+        ),
         content: Container(
           child: Column(
             children: [
-              Align(
+              !isSelected0 && !isSelected1 ? Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  'Nothing required, go to next step',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 25,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ) : SizedBox(),
+              isSelected0 || isSelected1 ?Align(
                 alignment: Alignment.topLeft,
                 child: Text(
                   'Enter data',
@@ -299,140 +242,153 @@ class _StepperFormWeightPageState extends State<StepperFormWeightPage> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-              ),
-              SizedBox(
+              ) : SizedBox(),
+              isSelected0 || isSelected1 ? SizedBox(
                 height: 24,
-              ),
-              TextField(
+              ) : SizedBox(),
+              isSelected0 || isSelected1 ? TextField(
+                enabled: isSelected1 || isSelected0 ? true:false,
                 decoration: InputDecoration(
-                  label: Text('Enter temperature',style: TextStyle(
+                  label: Text(
+                    'Enter temperature',
+                    style: TextStyle(
                     color: Colors.white54,
                   ),),
                   border: OutlineInputBorder(),
                 ),
+                controller: tController,
                 style: TextStyle(
                   color: Colors.white,
                 ),
-              ),
-              SizedBox(
+                onChanged: (value){
+                  setState(() => T = double.tryParse(value));
+                },
+              ) : SizedBox(),
+              isSelected0 || isSelected1 ? SizedBox(
                 height: 8,
-              ),
-              TextField(
+              ) : SizedBox(),
+              isSelected0 || isSelected1 ? TextField(
+                enabled: isSelected1 || isSelected0 ? true:false,
                 decoration: InputDecoration(
-                  label: Text('Enter storage Time (days)',style: TextStyle(
+                  label: Text('Enter relative humidity',style: TextStyle(
                     color: Colors.white54,
                   ),),
                   border: OutlineInputBorder(),
                 ),
+                controller: rhController,
                 style: TextStyle(
                   color: Colors.white,
                 ),
-              ),
+                onChanged: (value){
+                  setState(() => rh = double.tryParse(value));
+                },
+              ) : SizedBox(),
               SizedBox(
                 height: 8,
               ),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black38),
-                  borderRadius: BorderRadius.circular(8),
+              isSelected1 ? TextField(
+                decoration: InputDecoration(
+                  label: Text('Enter current weight (kg)',style: TextStyle(
+                    color: Colors.white54,
+                  ),),
+                  border: OutlineInputBorder(),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                child: DropdownButton<String>(
-                  value: dropdownValue,
-                  isExpanded: true,
-                  underline: Container(
-                    color: Colors.transparent,
-                  ),
-                  icon: const Icon(Icons.arrow_drop_down),
-                  elevation: 0,
-                  dropdownColor: Colors.grey[900],
-                  style: const TextStyle(color: Colors.white),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      dropdownValue = newValue!;
-                      selectedVariety = varietyList.where((element) => element.variety == dropdownValue).first;
-                    });
-                  },
-                  items: varietyList
-                      .map<DropdownMenuItem<String>>((PotatoData value) {
-                    return DropdownMenuItem<String>(
-                      value: value.variety,
-                      child: Text(value.variety!),
-                    );
-                  }).toList(),
+                controller: currentWeightController,
+                style: TextStyle(
+                  color: Colors.white,
                 ),
-              ),
+                onChanged: (value){
+                  setState(() => currentWeight = double.tryParse(value));
+                },
+              ) : SizedBox(),
+
             ],
           ),
         ),
       ),
       Step(
-        isActive: currentStep>=2,
-        title: Text('Step 3'),
-        content: Container(
-          child: Column(
-            children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: Text(
-                  'Enter data',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 25,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 24,
-              ),
-              TextField(
-                decoration: InputDecoration(
-                  label: Text('Enter current RS (%)',style: TextStyle(
-                    color: Colors.white70,
-                  ),),
-                  border: OutlineInputBorder(),
-                ),
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              SizedBox(
-                height: 24,
-              ),
-              Text('- OR -', style: TextStyle(color: Colors.white70, fontSize: 20),),
-              SizedBox(
-                height: 24,
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  gradient: LinearGradient(
-                    colors: [
-                      HexColor('#FF5F6D'),
-                      HexColor('#FFC371'),
-                    ],
-                    begin: Alignment.bottomLeft,
-                    end: Alignment.topRight,
-                  ),
-                ),
-                child: FloatingActionButton.extended(
-                  label: Text('Select Image'),
-                  icon: Icon(Icons.add_a_photo_rounded),
-                  backgroundColor: Colors.transparent,
-                  elevation: 0.0,
-                  onPressed: () {
-                    setState(() {
-                      openModal();
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+         isActive: currentStep >= 2,
+         title: Text(
+           'Step 3',
+           style: TextStyle(
+             color: Colors.white70,
+             fontSize: 16,
+           ),
+         ),
+         content: Container(
+           child: Column(
+             children: [
+               Align(
+                 alignment: Alignment.topLeft,
+                 child: Text(
+                   'Enter data',
+                   style: TextStyle(
+                     color: Colors.white70,
+                     fontSize: 25,
+                     fontWeight: FontWeight.w500,
+                   ),
+                 ),
+               ),
+               SizedBox(
+                 height: 24,
+               ),
+               !isSelected2 ? TextField(
+                 decoration: InputDecoration(
+                   label: Text('Enter current weightloss (%)', style: TextStyle(
+                     color: Colors.white70,
+                   ),),
+                   border: OutlineInputBorder(),
+                 ),
+                 controller: currentWeightlossController,
+                 style: TextStyle(
+                   color: Colors.white,
+                 ),
+                 onChanged: (value){
+                   setState(() => currentWeightloss = double.tryParse(value));
+                 },
+               ) : SizedBox(),
+               !isSelected2 ? SizedBox(
+                 height: 24,
+               ) : SizedBox(),
+               !isSelected2
+                   ? Text('- OR -',
+                 style: TextStyle(color: Colors.white70, fontSize: 20),)
+                   : SizedBox(),
+               SizedBox(
+                 height: 24,
+               ),
+               Container(
+                 decoration: BoxDecoration(
+                   borderRadius: BorderRadius.circular(100),
+                   gradient: LinearGradient(
+                     colors: [
+                       HexColor('#FF5F6D'),
+                       HexColor('#FFC371'),
+                     ],
+                     begin: Alignment.bottomLeft,
+                     end: Alignment.topRight,
+                   ),
+                 ),
+                 child: FloatingActionButton.extended(
+                   label: Text('Select Image'),
+                   icon: Icon(Icons.add_a_photo_rounded),
+                   backgroundColor: Colors.transparent,
+                   elevation: 0.0,
+                   onPressed: () {
+                     setState(() {
+                       openModal();
+                     });
+                   },
+                 ),
+               ),
+             ],
+           ),
+         ),
+       ),
+
     ];
+
+     return listOfSteps;
   }
 
   Future<dynamic> openModal() {

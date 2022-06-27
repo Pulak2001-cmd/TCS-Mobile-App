@@ -16,8 +16,8 @@ class _StepperFormTranspirationPageState extends State<StepperFormTranspirationP
 
   bool isSelected0 = false, isSelected1= false;
   int currentStep = 0;
-  double? rh = 5;
-  double? T = 5;
+  double? rh =5;
+  double? T =5;
 
   TextEditingController tController = TextEditingController();
   TextEditingController rhController = TextEditingController();
@@ -89,7 +89,7 @@ class _StepperFormTranspirationPageState extends State<StepperFormTranspirationP
               onStepContinue: (){
                 final isLastStep = currentStep == getSteps().length -1;
 
-                if(isLastStep){
+                if(isLastStep || !isSelected1){
                   print(widget.selectedParameter);
                   Navigator.push(context, MaterialPageRoute(builder: (context) => ResultPage(selectedParameter: widget.selectedParameter, result: PotatoData.getTranspirationRate(T, rh), isSelected0: isSelected0, isSelected1: isSelected1, T: T, rh: rh, )));
 
@@ -150,7 +150,13 @@ class _StepperFormTranspirationPageState extends State<StepperFormTranspirationP
       Step(
         state: currentStep>0 ? StepState.complete : StepState.indexed,
         isActive: currentStep>=0,
-        title: Text('Step 1'),
+        title: Text(
+          'Step 1',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 16,
+          ),
+        ),
         content: Container(
           // color: Colors.white10,
           child: Column(
@@ -196,7 +202,13 @@ class _StepperFormTranspirationPageState extends State<StepperFormTranspirationP
       Step(
         state: currentStep>1 ? StepState.complete : StepState.indexed,
         isActive: currentStep>=1,
-        title: Text('Step 2'),
+        title: Text(
+          'Step 2',
+          style: TextStyle(
+            color: Colors.white70,
+            fontSize: 16,
+          ),
+        ),
         content: Container(
           child: Column(
             children: [

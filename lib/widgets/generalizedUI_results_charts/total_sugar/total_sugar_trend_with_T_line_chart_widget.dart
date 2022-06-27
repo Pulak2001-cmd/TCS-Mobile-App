@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_login_ui/common/utility_functions.dart';
 import 'package:flutter_login_ui/models/potato_data_model.dart';
 import 'package:scidart/numdart.dart';
 
@@ -40,31 +41,20 @@ class _TotalSugarTrendTLineChartWidgetState extends State<TotalSugarTrendTLineCh
     return lineChartData;
   }
 
-  double roundToPrevTens(double length){
-    double temp = double.parse((length/10).truncate().toString())*10;
-    return temp;
-  }
-
-  double roundToNextTens(double length){
-    double temp = double.parse((length/10).truncate().toString())*10 + 10;
-    return temp;
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: futureLineChartData(timeVec, totalSugarList),
       builder: (context,snapshot){
         if(snapshot.hasData){
-          var data = snapshot.data as List<List<FlSpot>>;
+          List<List<FlSpot>> data = snapshot.data as List<List<FlSpot>>;
+          List<FlSpot> flattenedData = data.expand((element) => element).toList();
           return LineChart(
               LineChartData(
                   minX:0,
                   maxX: 100,
-                  // minY: roundToPrevTens(data[0][0].y) ,
-                  // maxY: roundToNextTens(data[0][19].y) ,
-                  minY: 0 ,
-                  maxY: 14 ,
+                  minY: roundToPrevTwo(getMin(flattenedData)),
+                  maxY: roundToNextTwo(getMax(flattenedData)),
                   gridData: FlGridData(
                     show: true,
                     getDrawingHorizontalLine: (val) {
@@ -233,7 +223,7 @@ class _TotalSugarTrendTLineChartWidgetState extends State<TotalSugarTrendTLineCh
                         sideTitles: SideTitles(
                           getTitlesWidget: leftTitleWidgets,
                           showTitles: true,
-                          interval: 1,
+                          interval: axisLabelsInterval(flattenedData),
                           reservedSize: 40,
                         )
                     ),
@@ -266,12 +256,7 @@ class _TotalSugarTrendTLineChartWidgetState extends State<TotalSugarTrendTLineCh
       fontSize: 14,
     );
     String text;
-    if(value.toInt() % 2 == 0) {
-      text = '${value.toStringAsFixed(0)} %';
-    } else {
-      text = '';
-    }
-
+    text = '${value.toStringAsFixed(1)}';
     return Text(text, style: style, textAlign: TextAlign.center);
   }
   Widget bottomTitleWidgets(double value, TitleMeta meta) {

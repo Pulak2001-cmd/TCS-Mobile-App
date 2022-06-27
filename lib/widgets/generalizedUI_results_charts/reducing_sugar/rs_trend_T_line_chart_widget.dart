@@ -4,10 +4,12 @@ import 'package:flutter_login_ui/models/potato_data_model.dart';
 import 'package:scidart/numdart.dart';
 import 'dart:math';
 
+import '../../../common/utility_functions.dart';
+
 class RSTrendTLineChartWidget extends StatefulWidget {
-  PotatoData selectedVariety;
-  double currentRS;
-  double T;
+  final PotatoData selectedVariety;
+  final double currentRS;
+  final double T;
 
    RSTrendTLineChartWidget({Key? key,required this.selectedVariety, required this.currentRS, required this.T }) : super(key: key);
 
@@ -24,13 +26,20 @@ class _RSTrendTLineChartWidgetState extends State<RSTrendTLineChartWidget> {
 
   Future<List<FlSpot>> futureLineChartData(Array timeVec, List<double?> reducing_sugar) async {
     List<FlSpot> lineChartData = [];
+    print(widget.currentRS);
+    print(widget.T);
     for (var time in timeVec){
-      reducing_sugar.add(await widget.selectedVariety.RS_day(time, widget.T, widget.currentRS));
+      double? result = await widget.selectedVariety.RS_day(time, widget.T, widget.currentRS);
+      result = double.parse((result?.toStringAsFixed(1))!);
+      reducing_sugar.add(result);
     }
     for(var i = 0; i< timeVec.length; i++)
     lineChartData.add( FlSpot(timeVec[i], reducing_sugar[i] ?? 0));
     return lineChartData;
   }
+
+  late double maxAxisLabel;
+  late double minAxisLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -38,12 +47,15 @@ class _RSTrendTLineChartWidgetState extends State<RSTrendTLineChartWidget> {
         future: futureLineChartData(timeVec, reducing_sugar),
         builder: (context,snapshot){
           if(snapshot.hasData){
+            List<FlSpot> flattenedData = snapshot.data as List<FlSpot>;
+            minAxisLabel = roundToPrevTwo(getMin(flattenedData));
+            maxAxisLabel = roundToNextTwo(getMax(flattenedData));
             return LineChart(
                 LineChartData(
                     minX:0,
                     maxX: 100,
-                    minY: 0,
-                    maxY: 100,
+                    minY: minAxisLabel,
+                    maxY: maxAxisLabel,
                     gridData: FlGridData(
                       show: true,
                       getDrawingHorizontalLine: (val) {
@@ -105,7 +117,7 @@ class _RSTrendTLineChartWidgetState extends State<RSTrendTLineChartWidget> {
                           sideTitles: SideTitles(
                             getTitlesWidget: leftTitleWidgets,
                             showTitles: true,
-                            interval: 20,
+                            interval: axisLabelsInterval(flattenedData),
                             reservedSize: 40,
                           )
                       ),
@@ -138,12 +150,14 @@ class _RSTrendTLineChartWidgetState extends State<RSTrendTLineChartWidget> {
       fontSize: 14,
     );
     String text;
-    if(value.toInt()%20 == 0) {
-        text = '${value.toStringAsFixed(0)} %';
+    if(value == maxAxisLabel || value == minAxisLabel){
+      print('textValue: 123');
+      text = '${value.toStringAsFixed(1)} %';
     } else {
-      text = '';
+      double textValue = value + minAxisLabel;
+      print('textValue: $textValue');
+      text = '${textValue.toStringAsFixed(1)} %';
     }
-
     return Text(text, style: style, textAlign: TextAlign.center);
   }
   Widget bottomTitleWidgets(double value, TitleMeta meta) {

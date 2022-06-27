@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter_login_ui/providers/alert_provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LineChartWidget extends StatefulWidget {
   const LineChartWidget({Key? key}) : super(key: key);
@@ -29,8 +31,13 @@ class _LineChartWidgetState extends State<LineChartWidget> {
       http.Response response = await http.get(Uri.parse('https://6295fb06810c00c1cb6ca55f.mockapi.io/api/temperature-data'));
       List temperatureData = jsonDecode(response.body);
       List<FlSpot> lineChartData = [];
-      double index =0;
-      temperatureData.forEach((temp) => lineChartData.add(FlSpot(index++, double.parse(temp["T"]!))));
+      for(int index =0; index < temperatureData.length; index ++) {
+        //TODO: this run continuously with the stream, crate a method to check for updates
+        // if(double.parse(temperatureData[index]["T"]) > 5.0){
+        //   Provider.of<AlertProvider>(context,listen: false).addAlert('Temperature greater than critical limit');
+        // }
+        lineChartData.add(FlSpot(index.toDouble(), double.parse(temperatureData[index]["T"]!)));
+      }
       yield lineChartData;
     }
   }

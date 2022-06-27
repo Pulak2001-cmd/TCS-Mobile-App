@@ -2,16 +2,26 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login_ui/pages/splash_screen.dart';
+import 'package:flutter_login_ui/providers/alert_provider.dart';
+import 'package:flutter_login_ui/providers/temp_crop_list_provider.dart';
 import 'package:flutter_login_ui/services/auth.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 
 
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => AlertProvider()),
+      ChangeNotifierProvider(create: (context) => CropListProvider()),
+    ],
+    child: MyApp(),
+  ));
 }
 
 
@@ -73,6 +83,10 @@ class MyApp extends StatelessWidget {
     //         );
     //     }
     //   );
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown
+    ]);
     return StreamProvider<User?>.value(
       initialData: null,
       value: AuthServices().user,

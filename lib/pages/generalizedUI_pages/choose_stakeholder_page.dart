@@ -33,12 +33,12 @@ class ChooseStakeholdersPage extends StatelessWidget {
             child: SafeArea(
               child: ListView(
                 children: [
-                  buildListTile('Farmer',FontAwesomeIcons.addressCard,context),
-                  buildListTile('Transporter',FontAwesomeIcons.addressCard, context),
-                  buildListTile('Storage Facility',FontAwesomeIcons.addressCard,context),
-                  buildListTile('Wholesaler',FontAwesomeIcons.addressCard,context),
-                  buildListTile('Retailer',FontAwesomeIcons.addressCard,context),
-                  buildListTile('Consumer',FontAwesomeIcons.addressCard,context),
+                  buildListTile('Farmer','assets/images/generalizedUI_page/stakeholders/farmer.jpg',context),
+                  buildListTile('Transporter','assets/images/generalizedUI_page/stakeholders/transporter.jpg', context),
+                  buildListTile('Storage Facility','assets/images/generalizedUI_page/stakeholders/storage_facility.jpg',context),
+                  buildListTile('Wholesaler','assets/images/generalizedUI_page/stakeholders/wholesaler.jpg',context),
+                  buildListTile('Retailer','assets/images/generalizedUI_page/stakeholders/retailer.jpg',context),
+                  buildListTile('Consumer','assets/images/generalizedUI_page/stakeholders/consumer.jpg',context),
                 ],
               ),
             ),
@@ -51,7 +51,7 @@ class ChooseStakeholdersPage extends StatelessWidget {
 
 
   //WIDGET TO BUILD ListTiles()
-  Widget buildListTile(String title, IconData icon, BuildContext context) {
+  Widget buildListTile(String title, String assetName, BuildContext context) {
     return Container(
       clipBehavior: Clip.antiAlias,
       margin: EdgeInsets.symmetric(vertical: 4,horizontal: 0),
@@ -73,9 +73,8 @@ class ChooseStakeholdersPage extends StatelessWidget {
         onPressed: (){
         },
         child: ListTile(
-          leading: Icon(
-            icon,
-            color: Colors.white70,
+          leading: CircleAvatar(
+            backgroundImage: AssetImage(assetName),
           ),
           title: Text(
             title,

@@ -42,7 +42,7 @@ class _TutorialPageState extends State<TutorialPage> {
   String? name;
   String? crop;
 
-  PotatoData sampleData = PotatoData(variety: 'Kennebec', T_ref: 0.00358744,  k_ref: -0.0099,  E: 158.8,  minT: 2,  maxT: 10,);
+  PotatoData sampleData = PotatoData(variety: 'Kennebec', T_ref_reciprocal: 0.00358744,  k_ref: -0.0099,  E: 158.8,  minT: 2,  maxT: 10,);
 
   @override
   Widget build(BuildContext context) {

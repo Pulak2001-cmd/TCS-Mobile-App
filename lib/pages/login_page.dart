@@ -6,6 +6,7 @@ import 'package:flutter_login_ui/common/theme_helper.dart';
 import 'package:flutter_login_ui/services/auth.dart';
 
 import 'forgot_password_page.dart';
+import 'generalized_ui_page.dart';
 import 'registration_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -147,19 +148,19 @@ class _LoginPageState extends State<LoginPage> {
                                     //After successful login we will redirect to home page.
                                     Clipboard.setData(ClipboardData());
                                     HapticFeedback.heavyImpact();
-                                    dynamic result = await _authService.signInAnon();
+                                    // dynamic result = await _authService.signInAnon();
+                                    //
+                                    // if(result == null){
+                                    //   print('Error');
+                                    // } else {
+                                    //   print('Sign in anon');
+                                    //   print(result.uid.toString());
+                                    // }
 
-                                    if(result == null){
-                                      print('Error');
-                                    } else {
-                                      print('Sign in anon');
-                                      print(result.uid.toString());
-                                    }
-
-                                    // Navigator.pushReplacement(
-                                    //     context,
-                                    //     MaterialPageRoute(
-                                    //         builder: (context) => GeneralizedUIPage()));
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => GeneralizedUIPage()));
                                   },
                                 ),
                                 Container(

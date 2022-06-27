@@ -106,7 +106,19 @@ class _VariationsInPhysicalParametersScreenState extends State<VariationsInPhysi
       ),
       width: double.infinity,
       height: 250,
-      child: lineChartWidget,
+      child: Column(
+        children: [
+          Expanded(child: lineChartWidget),
+          Text(
+            "           Time in days",
+            style : TextStyle(
+              color: Color(0xff75729e),
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          )
+        ],
+      ),
 
     );
   }

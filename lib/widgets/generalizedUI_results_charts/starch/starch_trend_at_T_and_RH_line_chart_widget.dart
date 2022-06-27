@@ -4,6 +4,8 @@ import 'package:flutter_login_ui/models/potato_data_model.dart';
 import 'package:scidart/numdart.dart';
 import 'dart:math';
 
+import '../../../common/utility_functions.dart';
+
 class StarchTrendAtTAndRHLineChartWidget extends StatefulWidget {
   PotatoData selectedVariety;
   double currentRS;
@@ -39,12 +41,13 @@ class _StarchTrendAtTAndRHLineChartWidgetState extends State<StarchTrendAtTAndRH
       future: futureLineChartData(timeVec, starch),
       builder: (context,snapshot){
         if(snapshot.hasData){
+          List<FlSpot> data = snapshot.data as List<FlSpot>;
           return LineChart(
               LineChartData(
                   minX:0,
                   maxX: 100,
-                  minY: 0,
-                  maxY: 100,
+                  minY: roundToPrevTwo(getMin(data)),
+                  maxY: roundToNextTwo(getMax(data)),
                   gridData: FlGridData(
                     show: true,
                     getDrawingHorizontalLine: (val) {
@@ -106,7 +109,7 @@ class _StarchTrendAtTAndRHLineChartWidgetState extends State<StarchTrendAtTAndRH
                         sideTitles: SideTitles(
                           getTitlesWidget: leftTitleWidgets,
                           showTitles: true,
-                          interval: 1,
+                          interval: double.parse(((roundToNextTwo(getMax(data)) - roundToPrevTwo(getMin(data)))/4).toStringAsFixed(1)),
                           reservedSize: 40,
                         )
                     ),
@@ -139,11 +142,7 @@ class _StarchTrendAtTAndRHLineChartWidgetState extends State<StarchTrendAtTAndRH
       fontSize: 14,
     );
     String text;
-    if(value.toInt()%20 == 0) {
-      text = '${value.toStringAsFixed(0)}';
-    } else {
-      text = '';
-    }
+      text = '${value.toStringAsFixed(1)}';
 
     return Text(text, style: style, textAlign: TextAlign.center);
   }

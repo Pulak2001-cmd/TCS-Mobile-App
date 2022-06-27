@@ -1,8 +1,14 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_login_ui/pages/best_practices_pages/disease_management_page.dart';
+import 'package:flutter_login_ui/pages/best_practices_pages/quality_standards.dart';
+import 'package:flutter_login_ui/pages/best_practices_pages/smart_warehouse.dart';
+import 'package:flutter_login_ui/pages/best_practices_pages/storage_protocol.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
+
+import 'best_practices_pages/sprout_management.dart';
 
 class BestPracticesPage extends StatelessWidget {
   BestPracticesPage({Key? key}) : super(key: key);
@@ -58,6 +64,8 @@ class BestPracticesPage extends StatelessWidget {
                           HexColor('#FFC371'),
                           'Disease Management',
                           FontAwesomeIcons.briefcaseMedical,
+                          DiseaseManagementPage(),
+                          context
                       ),
                       SizedBox(width: 16,),
                       buildCard(
@@ -65,6 +73,8 @@ class BestPracticesPage extends StatelessWidget {
                         HexColor('#38ef7d'),
                         'Quality Standards',
                         FontAwesomeIcons.heartCircleCheck,
+                          QualityStandardsPage(),
+                          context
                       ),
                     ],
                   ),
@@ -80,6 +90,8 @@ class BestPracticesPage extends StatelessWidget {
                         HexColor('#6dd5ed'),
                         'Sprout Management',
                         FontAwesomeIcons.seedling,
+                          SproutManagementPage(),
+                          context
                       ),
                       SizedBox(width: 16,),
                       buildCard(
@@ -87,6 +99,8 @@ class BestPracticesPage extends StatelessWidget {
                         HexColor('#fc6767'),
                         'Smart Warehouse',
                         FontAwesomeIcons.houseSignal,
+                          SmartWarehousePage(),
+                          context
                       ),
                     ],
                   ),
@@ -102,6 +116,8 @@ class BestPracticesPage extends StatelessWidget {
                         HexColor('#1cefff'),
                         'Storage Protocol',
                         FontAwesomeIcons.boxOpen,
+                          StorageProtocolPage(),
+                          context
                       ),
                     ],
                   ),
@@ -114,7 +130,7 @@ class BestPracticesPage extends StatelessWidget {
     );
   }
 
-  Widget buildCard(HexColor color1, HexColor color2, String title, IconData icon) {
+  Widget buildCard(HexColor color1, HexColor color2, String title, IconData icon, page, BuildContext context) {
     return Expanded(
       child: Container(
         clipBehavior: Clip.antiAlias,
@@ -140,7 +156,9 @@ class BestPracticesPage extends StatelessWidget {
             backgroundColor: MaterialStateProperty.all(Colors.transparent),
             elevation: MaterialStateProperty.all(0),
           ),
-          onPressed: (){},
+          onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+          },
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(

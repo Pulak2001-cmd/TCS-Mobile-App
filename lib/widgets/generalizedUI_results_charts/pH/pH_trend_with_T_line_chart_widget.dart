@@ -1,3 +1,4 @@
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_login_ui/models/potato_data_model.dart';
@@ -22,20 +23,20 @@ class _PhTrendTLineChartWidgetState extends State<PhTrendTLineChartWidget> {
   List<List<double?>> pHList = [[],[],[],[],[],[]];
 
   Future<List<List<FlSpot>>> futureLineChartData(Array timeVec, List<List<double?>> pHList) async {
+    pHList = [[],[],[],[],[],[]];
     List<List<FlSpot>> lineChartData = [[],[],[],[],[],[]];
-
-    for(int i =0 ; i < 6; i++) {
+    for(int i =0 ; i < 6; i+=1) {
       List<double?> pH = pHList[i];
       for (var time in timeVec) {
-        var dataPoint = double.parse((await widget.selectedVariety.calculate_ph(
-            time, (i*5 + 5), widget.currentRS)).toStringAsFixed(2));
+        var dataPoint = double.parse((await widget.selectedVariety.calculate_ph(time, (i*5 + 5.0), widget.currentRS)).toStringAsFixed(2));
         pH.add(dataPoint);
       }
     }
 
     for(int i =0 ; i< 6; i++) {
-      for (var j = 0; j < timeVec.length; j++)
-        lineChartData[i].add(FlSpot(timeVec[j], pHList[i][j] ?? 0));
+      for (var j = 0; j < pHList[i].length; j++) {
+        lineChartData[i].add(FlSpot(timeVec[j], pHList[i][j] ?? 0.0));
+      }
     }
     return lineChartData;
   }
@@ -248,7 +249,9 @@ class _PhTrendTLineChartWidgetState extends State<PhTrendTLineChartWidget> {
                   )
               )
           );
-        } else if (snapshot.hasError){
+        }
+        else if (snapshot.hasError){
+          print(snapshot.error);
           return Text('Something went wrong');
         } else {
           return Center(
@@ -267,7 +270,7 @@ class _PhTrendTLineChartWidgetState extends State<PhTrendTLineChartWidget> {
     );
     String text;
     if(value.toInt() % 2 == 0) {
-      text = '${value.toStringAsFixed(0)} %';
+      text = '${value.toStringAsFixed(0)}';
     } else {
       text = '';
     }

@@ -5,6 +5,8 @@ class CropStatus {
   String? weightLossStatus;
   String? diseaseStatus;
   String? overallHealthStatus;
+  double? shelfLifeAmbient;
+  double? shefLifeColdStorage;
 
   CropStatus({
     this.image,
@@ -12,5 +14,7 @@ class CropStatus {
     this.weightLossStatus,
     this.diseaseStatus,
     this.overallHealthStatus,
+    this.shefLifeColdStorage,
+    this.shelfLifeAmbient,
   });
 }

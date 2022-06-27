@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_login_ui/models/potato_data_model.dart';
 import 'package:scidart/numdart.dart';
 
+import '../../../common/utility_functions.dart';
+
 class StarchTrendTLineChartWidget extends StatefulWidget {
   PotatoData selectedVariety;
   double currentRS;
@@ -56,13 +58,14 @@ class _StarchTrendTLineChartWidgetState extends State<StarchTrendTLineChartWidge
       future: futureLineChartData(timeVec, starchList),
       builder: (context,snapshot){
         if(snapshot.hasData){
-          var data = snapshot.data as List<List<FlSpot>>;
+          List<List<FlSpot>> data = snapshot.data as List<List<FlSpot>>;
+          List<FlSpot> flattenedData = data.expand((element) => element).toList();
           return LineChart(
               LineChartData(
                   minX:0,
                   maxX: 100,
-                  minY: 0 ,
-                  maxY: 100 ,
+                  minY: roundToPrevTwo(getMin(flattenedData)),
+                  maxY: roundToNextTwo(getMax(flattenedData)),
                   gridData: FlGridData(
                     show: true,
                     getDrawingHorizontalLine: (val) {
@@ -231,7 +234,7 @@ class _StarchTrendTLineChartWidgetState extends State<StarchTrendTLineChartWidge
                         sideTitles: SideTitles(
                           getTitlesWidget: leftTitleWidgets,
                           showTitles: true,
-                          interval: 1,
+                          interval: double.parse(((roundToNextTwo(getMax(flattenedData)) - roundToPrevTwo(getMin(flattenedData)))/4).toStringAsFixed(1)),
                           reservedSize: 40,
                         )
                     ),
@@ -264,11 +267,7 @@ class _StarchTrendTLineChartWidgetState extends State<StarchTrendTLineChartWidge
       fontSize: 14,
     );
     String text;
-    if(value.toInt() % 20 == 0) {
-      text = '${value.toStringAsFixed(0)} %';
-    } else {
-      text = '';
-    }
+      text = '${value.toStringAsFixed(1)}';
 
     return Text(text, style: style, textAlign: TextAlign.center);
   }

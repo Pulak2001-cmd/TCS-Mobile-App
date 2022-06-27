@@ -47,7 +47,7 @@ class _StepperFormChipsColorPageState extends State<StepperFormChipsColorPage> {
   List<PotatoData> varietyList = [
     PotatoData(
       variety: 'Kennebec',
-      T_ref: 0.00358744,
+      T_ref_reciprocal: 0.00358744,
       k_ref: -0.0099,
       E: 158.8,
       minT: 2,
@@ -55,7 +55,7 @@ class _StepperFormChipsColorPageState extends State<StepperFormChipsColorPage> {
     ),
     PotatoData(
       variety: 'Toyoshiro',
-      T_ref: 0.00354924,
+      T_ref_reciprocal: 0.00354924,
       k_ref: -0.0076,
       E: 133.7,
       minT: 2,
@@ -63,7 +63,7 @@ class _StepperFormChipsColorPageState extends State<StepperFormChipsColorPage> {
     ),
     PotatoData(
       variety: 'Wuhoon',
-      T_ref: 0.00358744,
+      T_ref_reciprocal: 0.00358744,
       k_ref: -0.0097,
       E: 119.1,
       minT: 2,
@@ -71,7 +71,7 @@ class _StepperFormChipsColorPageState extends State<StepperFormChipsColorPage> {
     ),
     PotatoData(
       variety: 'K Badshah',
-      T_ref: 0.00353544,
+      T_ref_reciprocal: 0.00353544,
       k_ref: -0.002998,
       E: 213.5,
       minT: 4,
@@ -79,7 +79,7 @@ class _StepperFormChipsColorPageState extends State<StepperFormChipsColorPage> {
     ),
     PotatoData(
       variety: 'Onaway',
-      T_ref: 0.003510619,
+      T_ref_reciprocal: 0.003510619,
       k_ref: -0.00112,
       E: 270.3,
       minT: 5,
@@ -87,7 +87,7 @@ class _StepperFormChipsColorPageState extends State<StepperFormChipsColorPage> {
     ),
     PotatoData(
       variety: 'K Lauvkar',
-      T_ref: 0.00353544,
+      T_ref_reciprocal: 0.00353544,
       k_ref: -0.003118,
       E: 217.6,
       minT: 4,
@@ -170,9 +170,9 @@ class _StepperFormChipsColorPageState extends State<StepperFormChipsColorPage> {
               onStepContinue: (){
                 final isLastStep = currentStep == getSteps().length -1;
 
-                if(isLastStep){
+                if(isLastStep || !isSelected1){
                   print(widget.selectedParameter);
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ResultPage(selectedParameter: widget.selectedParameter, result: selectedVariety?.getRS(storageTime, storageTemp, currentRS), isSelected0: isSelected0, isSelected1: isSelected1, isSelected2: isSelected2,selectedVariety: selectedVariety, currentRS: currentRS ,)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ResultPage(selectedParameter: widget.selectedParameter, isSelected0: isSelected0, isSelected1: isSelected1, isSelected2: isSelected2,selectedVariety: selectedVariety, currentRS: currentRS ,)));
                   //send data to server
                 } else{
                   setState(() => currentStep++ );
@@ -215,7 +215,7 @@ class _StepperFormChipsColorPageState extends State<StepperFormChipsColorPage> {
                   setState(() => isSelected0 = !isSelected0);
                 },
                 title: Text(
-                  'Effect of T on Total Sugars',
+                  'Effect of T on Chips color',
                   style: TextStyle(
                     color: Colors.white70,
                   ),
@@ -232,7 +232,7 @@ class _StepperFormChipsColorPageState extends State<StepperFormChipsColorPage> {
                   setState(() => isSelected1 = !isSelected1);
                 },
                 title: Text(
-                  'Change in Total Sugars at a particular T and RH',
+                  'Change in Chips color at a particular T and RH',
                   style: TextStyle(
                     color: Colors.white70,
                   ),
@@ -293,7 +293,7 @@ class _StepperFormChipsColorPageState extends State<StepperFormChipsColorPage> {
                 height: 8,
               ),
 
-              //Show Textfield only if 'Prediction of RS after a given time' is selected otherwise show an empty SizedBox i.e nothing
+
               TextField(
                 decoration: InputDecoration(
                   label: Text('Enter relative humidity (%)',style: TextStyle(

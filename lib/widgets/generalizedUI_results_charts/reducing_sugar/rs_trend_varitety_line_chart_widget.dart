@@ -1,14 +1,15 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_login_ui/common/utility_functions.dart';
 import 'package:flutter_login_ui/models/potato_data_model.dart';
+import 'package:provider/provider.dart';
 import 'package:scidart/numdart.dart';
 
 class RSTrendVarietyLineChartWidget extends StatefulWidget {
-  PotatoData selectedVariety;
-  double currentRS;
-  double T;
+  final PotatoData selectedVariety;
+  final double? currentRS;
 
-  RSTrendVarietyLineChartWidget({Key? key,required this.selectedVariety, required this.currentRS, required this.T }) : super(key: key);
+  RSTrendVarietyLineChartWidget({Key? key,required this.selectedVariety,this.currentRS}) : super(key: key);
 
   @override
   State<RSTrendVarietyLineChartWidget> createState() => _RSTrendVarietyLineChartWidgetState();
@@ -27,8 +28,10 @@ class _RSTrendVarietyLineChartWidgetState extends State<RSTrendVarietyLineChartW
     for(int i =0 ; i < 6; i++) {
       List<double?> reducingSugar = reducingSugarList[i];
       for (var time in timeVec) {
-        reducingSugar.add(await widget.selectedVariety.RS_day(
-            time, (i*2 + 2), widget.currentRS));
+        double? result = await widget.selectedVariety.RS_day(time, (i*2 + 2), widget.currentRS == null ? PotatoData.calculateCurrentRSPercentage() : widget.currentRS);
+        result = double.parse((result?.toStringAsFixed(1))!);
+
+        reducingSugar.add(result);
       }
     }
 
@@ -39,15 +42,9 @@ class _RSTrendVarietyLineChartWidgetState extends State<RSTrendVarietyLineChartW
     return lineChartData;
   }
 
-  double roundToPrevTens(double length){
-    double temp = double.parse((length/10).truncate().toString())*10;
-    return temp;
-  }
-
-  double roundToNextTens(double length){
-    double temp = double.parse((length/10).truncate().toString())*10 + 10;
-    return temp;
-  }
+  late double maxAxisLabel;
+  late double minAxisLabel;
+  late List<FlSpot> flattenedData;
 
   @override
   Widget build(BuildContext context) {
@@ -55,15 +52,19 @@ class _RSTrendVarietyLineChartWidgetState extends State<RSTrendVarietyLineChartW
       future: futureLineChartData(timeVec, reducingSugarList),
       builder: (context,snapshot){
         if(snapshot.hasData){
-          var data = snapshot.data as List<List<FlSpot>>;
+          List<List<FlSpot>> data = snapshot.data as List<List<FlSpot>>;
+          flattenedData = data.expand((element) => element).toList();
+          minAxisLabel = roundToPrevTwo(getMin(flattenedData));
+          maxAxisLabel = roundToNextTwo(getMax(flattenedData));
+          if(minAxisLabel == maxAxisLabel && maxAxisLabel == 0){
+            maxAxisLabel =1;
+          }
           return LineChart(
               LineChartData(
                   minX:0,
                   maxX: 100,
-                  // minY: roundToPrevTens(data[0][0].y) ,
-                  // maxY: roundToNextTens(data[0][19].y) ,
-                  minY: data[0][0].y ,
-                  maxY: data[0][19].y ,
+                  minY: minAxisLabel,
+                  maxY: maxAxisLabel,
                   gridData: FlGridData(
                     show: true,
                     getDrawingHorizontalLine: (val) {
@@ -232,7 +233,7 @@ class _RSTrendVarietyLineChartWidgetState extends State<RSTrendVarietyLineChartW
                         sideTitles: SideTitles(
                           getTitlesWidget: leftTitleWidgets,
                           showTitles: true,
-                          interval: 1,
+                          interval: 0.25,
                           reservedSize: 40,
                         )
                     ),
@@ -241,13 +242,14 @@ class _RSTrendVarietyLineChartWidgetState extends State<RSTrendVarietyLineChartW
                           getTitlesWidget: bottomTitleWidgets,
                           showTitles: true,
                           interval: 1,
-                          reservedSize: 25,
+                          reservedSize: 35,
                         )
                     ),
                   )
               )
           );
         } else if (snapshot.hasError){
+          print(snapshot.error);
           return Text('Something went wrong');
         } else {
           return Center(
@@ -259,19 +261,7 @@ class _RSTrendVarietyLineChartWidgetState extends State<RSTrendVarietyLineChartW
   }
 
 Widget leftTitleWidgets(double value, TitleMeta meta) {
-  const style = TextStyle(
-    color: Color(0xff75729e),
-    fontWeight: FontWeight.bold,
-    fontSize: 14,
-  );
-  String text;
-  if(value.toInt() % 1 == 0) {
-    text = '${value.toStringAsFixed(0)} %';
-  } else {
-    text = '';
-  }
-
-  return Text(text, style: style, textAlign: TextAlign.center);
+  return Text(getAxisLabel(value: value, maxAxisLabel: maxAxisLabel, minAxisLabel: minAxisLabel, flattenedData: flattenedData), style: getStyle(), textAlign: TextAlign.center);
 }
 Widget bottomTitleWidgets(double value, TitleMeta meta) {
   const style = TextStyle(

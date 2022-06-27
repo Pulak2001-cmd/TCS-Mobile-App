@@ -122,6 +122,7 @@ class _PhTrendAtTAndRHLineChartWidgetState extends State<PhTrendAtTAndRHLineChar
               )
           );
         } else if (snapshot.hasError){
+          print(snapshot.error);
           return Text('Something went wrong');
         } else {
           return Center(
