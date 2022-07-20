@@ -1,8 +1,10 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_login_ui/common/theme_helper.dart';
+import 'package:flutter_login_ui/pages/real_time_monitoring_page.dart';
 import 'package:flutter_login_ui/services/auth.dart';
 
 import 'forgot_password_page.dart';
@@ -17,7 +19,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  Key _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -86,16 +90,28 @@ class _LoginPageState extends State<LoginPage> {
                             child: Column(
                               children: [
                                 Container(
-                                  child: TextField(
+                                  child: TextFormField(
+                                    controller: emailController,
+                                    validator: (email) {
+                                      if ( email != null && !EmailValidator.validate(email)) {
+                                        return "Enter a valid email address";
+                                      }
+                                      return null;
+                                    },
                                     decoration: ThemeHelper().textInputDecoration(
-                                        'User Name', 'Enter your user name'),
+                                        'Email', 'Enter your email'),
                                   ),
-                                  // decoration:
-                                  //     ThemeHelper().inputBoxDecorationShaddow(),
                                 ),
                                 SizedBox(height: height*0.04),
                                 Container(
-                                  child: TextField(
+                                  child: TextFormField(
+                                    controller: passwordController,
+                                    validator: (password) {
+                                      if (password!.isEmpty && password.length< 6) {
+                                        return "Enter minimum 6 characters";
+                                      }
+                                      return null;
+                                    },
                                     obscureText: true,
                                     decoration: ThemeHelper().textInputDecoration(
                                         'Password', 'Enter your password'),
@@ -145,22 +161,25 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                   ),
                                   onPressed: () async {
-                                    //After successful login we will redirect to home page.
-                                    Clipboard.setData(ClipboardData());
-                                    HapticFeedback.heavyImpact();
-                                    // dynamic result = await _authService.signInAnon();
-                                    //
-                                    // if(result == null){
-                                    //   print('Error');
-                                    // } else {
-                                    //   print('Sign in anon');
-                                    //   print(result.uid.toString());
-                                    // }
+                                    /// Validate email and password before continuing
+                                    if (_formKey.currentState!.validate()){
+                                      ///
+                                      Clipboard.setData(ClipboardData());
+                                      HapticFeedback.heavyImpact();
+                                      dynamic result = await _authService.signInWithEmailAndPassword(context, email: emailController.text, password: passwordController.text);
 
-                                    Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => GeneralizedUIPage()));
+                                      if(result == null){
+                                      } else {
+                                        print('Sign in with e and p');
+                                        print(result.uid.toString());
+                                        /// After successful login we will redirect to Gen UI page.
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => RealTimeMonitoringPage()));
+                                      }
+                                    }
+
                                   },
                                 ),
                                 Container(

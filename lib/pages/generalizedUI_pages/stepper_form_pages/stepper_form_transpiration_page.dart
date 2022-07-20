@@ -90,7 +90,6 @@ class _StepperFormTranspirationPageState extends State<StepperFormTranspirationP
                 final isLastStep = currentStep == getSteps().length -1;
 
                 if(isLastStep || !isSelected1){
-                  print(widget.selectedParameter);
                   Navigator.push(context, MaterialPageRoute(builder: (context) => ResultPage(selectedParameter: widget.selectedParameter, result: PotatoData.getTranspirationRate(T, rh), isSelected0: isSelected0, isSelected1: isSelected1, T: T, rh: rh, )));
 
                   //send data to server

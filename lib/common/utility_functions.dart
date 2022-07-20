@@ -73,19 +73,20 @@ double roundToNextTwo(double value){
   return result%2 == 0 ? result : result+1;
 }
 
-double axisLabelsInterval(List<FlSpot> flattenedData){
-  double result = double.parse(((roundToNextTwo(getMax(flattenedData)*1.02) - roundToPrevTwo(getMin(flattenedData)*0.98))/4).toStringAsFixed(1));
+double axisLabelsInterval(List<FlSpot> flattenedData, {bool round = true, bool isReducingSugar = false}){
+  double result = round ?  double.parse(((roundToNextTwo(getMax(flattenedData)*1.02) - roundToPrevTwo(getMin(flattenedData)*0.98))/4).toStringAsFixed(1)): double.parse(((getMax(flattenedData) - getMin(flattenedData))/4).toStringAsFixed(1));
+
   return result == 0 ? 0.25 : result;
 }
 
-String getAxisLabel({required double value, required double maxAxisLabel, required double minAxisLabel, required List<FlSpot> flattenedData, String symbol = '%', int digitsAfterDecimal = 1 , String axis = 'y'}){
+String getAxisLabel({required double value, required double maxAxisLabel, required double minAxisLabel, required List<FlSpot> flattenedData, String symbol = '%', int digitsAfterDecimal = 1 , String axis = 'y', bool round = true}){
   String axisLabel ='';
   if(axis == 'y'){
     if(value == maxAxisLabel || value == minAxisLabel){
       axisLabel = '${value.toStringAsFixed(digitsAfterDecimal)} $symbol';
     } else {
       for(int i =1; i<4; i++){
-        if(value.compareTo(minAxisLabel + axisLabelsInterval(flattenedData)*i) == 0){
+        if(value.compareTo(minAxisLabel + axisLabelsInterval(flattenedData, round: round)*i) == 0){
           axisLabel = '${value.toStringAsFixed(digitsAfterDecimal)} $symbol';
         }
       }
@@ -121,11 +122,15 @@ List<Map<String, double>> calculateAvgTemperatureAndHumidityByHours(List<DHT22Se
   DateTime prevTimestamp = sensorData.first.timestamp;
   double avgTemperature = sensorData.first.temperatureReading;
   double avgHumidity = sensorData.first.humidityReading;
+  double? avgEthyleneConc = sensorData.first.ethyleneConcReading;
+  double? avgCO2Conc = sensorData.first.co2ConcReading;
   Duration timeDifference = sensorData.last.timestamp.difference(sensorData.first.timestamp);
   Iterable<DHT22SensorData> filteredData = [];
   tempMap['index'] = index;
   tempMap['avgT'] = double.parse(avgTemperature.toStringAsFixed(1));
   tempMap['avgRH'] = double.parse(avgHumidity.toStringAsFixed(1));
+  tempMap['avgEC'] = double.parse(avgEthyleneConc?.toStringAsFixed(1) ?? '0');
+  tempMap['avgCC'] = double.parse(avgCO2Conc?.toStringAsFixed(1) ?? '0');
   avgTemperatureAndHumidityByHoursMaps.add(tempMap);
   for( int j =0; j< timeDifference.inSeconds/(hours*3600); j = j+1){
     filteredData = sensorData.where((element) => (element.timestamp.difference(prevTimestamp).inSeconds/3600 <= hours) && (element.timestamp.difference(prevTimestamp).inSeconds >= 0));
@@ -134,6 +139,10 @@ List<Map<String, double>> calculateAvgTemperatureAndHumidityByHours(List<DHT22Se
       avgTemperature = avgTemperature/ (noOfPoints+1);
       avgHumidity = avgHumidity*noOfPoints + dataPoint.humidityReading;
       avgHumidity = avgHumidity/ (noOfPoints+1);
+      avgEthyleneConc = avgEthyleneConc == null ? 0: avgEthyleneConc!*noOfPoints + (dataPoint.ethyleneConcReading ?? 0);
+      avgEthyleneConc = avgEthyleneConc! / (noOfPoints+1);
+      avgCO2Conc = avgCO2Conc == null ? 0:  avgCO2Conc! * noOfPoints + (dataPoint.co2ConcReading ?? 0 );
+      avgCO2Conc = avgCO2Conc!/ (noOfPoints+1);
       noOfPoints++;
     });
     noOfPoints = 0;
@@ -142,16 +151,20 @@ List<Map<String, double>> calculateAvgTemperatureAndHumidityByHours(List<DHT22Se
     tempMap['index'] = index/24;
     tempMap['avgT'] = double.parse(avgTemperature.toStringAsFixed(1));
     tempMap['avgRH'] = double.parse(avgHumidity.toStringAsFixed(1));
+    tempMap['avgEC'] = double.parse(avgEthyleneConc?.toStringAsFixed(1) ?? '0');
+    tempMap['avgCC'] = double.parse(avgCO2Conc?.toStringAsFixed(1) ?? '0');
     avgTemperatureAndHumidityByHoursMaps.add(tempMap);
     avgTemperature = -1000;
     avgHumidity = -1000;
+    avgEthyleneConc = -1000;
+    avgCO2Conc = -1000;
     prevTimestamp = prevTimestamp.add(Duration(seconds: (hours * 3600).toInt()));
   }
   return avgTemperatureAndHumidityByHoursMaps;
 }
 
 
-//Unused functions created for a previous version
+/// Unused functions created for a previous version
 List<double> avgTemperatureOfDay(List<DHT22SensorData> sensorData){
   List<double> avgTemperatureByDayList = [];
   int noOfPoints = 0;

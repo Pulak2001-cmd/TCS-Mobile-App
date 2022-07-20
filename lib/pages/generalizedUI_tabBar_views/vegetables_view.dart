@@ -30,10 +30,10 @@ class VegetablesView extends StatelessWidget {
                       ),
                       SizedBox(width: 16,),
                       buildCard(
-                          HexColor('#11998e'),
-                          HexColor('#38ef7d'),
-                          'Corn',
-                          'assets/images/generalizedUI_page/vegetables/corn.png',
+                          HexColor('#ec008c'),
+                          HexColor('#fc6767'),
+                          'Carrot',
+                          'assets/images/generalizedUI_page/vegetables/carrot.png',
                           context
                       ),
                     ],
@@ -53,13 +53,7 @@ class VegetablesView extends StatelessWidget {
                           context
                       ),
                       SizedBox(width: 16,),
-                      buildCard(
-                          HexColor('#ec008c'),
-                          HexColor('#fc6767'),
-                          'Carrot',
-                          'assets/images/generalizedUI_page/vegetables/carrot.png',
-                          context
-                      ),
+                      Expanded(child: SizedBox())
                     ],
                   ),
                 ),

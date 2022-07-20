@@ -22,26 +22,26 @@ class OnBoardingPage extends StatelessWidget {
       child: IntroductionScreen(
         pages: [
           PageViewModel(
-            title: 'Realtime Monitoring',
-            body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            title: 'Generalized UI',
+            body: 'Gain in-depth knowledge about a desired quality parameter of a desired food item using in-built mathematical and data-base models',
             image: SvgPicture.asset('assets/images/onboarding_page/realtime_monitoring.svg'),
             decoration: getPageDecoration(),
           ),
           PageViewModel(
             title: 'Manage your stock',
-            body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            body: 'Shelf life prediction of desired food item using in-built machine learning models.',
             image: SvgPicture.asset('assets/images/onboarding_page/manage_your_stock.svg'),
             decoration: getPageDecoration(),
           ),
           PageViewModel(
-            title: 'Simple UI',
-            body: 'For an enhanced experience',
+            title: 'Best Practices',
+            body: 'Get detailed information about do’s and don’ts of storage for desired food item.',
             image: SvgPicture.asset('assets/images/onboarding_page/simple_UI.svg'),
             decoration: getPageDecoration(),
           ),
           PageViewModel(
-            title: 'Web-based Monitoring',
-            body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+            title: 'Realtime Monitoring',
+            body: 'Continuous real time quality monitoring of food stock stored in warehouse/chamber',
             footer: ButtonWidget(
               text: 'Start Monitoring',
               onClicked: () => goToHome(context),

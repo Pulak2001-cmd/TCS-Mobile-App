@@ -1,11 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:email_validator/email_validator.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_login_ui/common/theme_helper.dart';
+import 'package:flutter_login_ui/pages/login_page.dart';
+import 'package:flutter_login_ui/widgets/dropdown_widget.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hexcolor/hexcolor.dart';
-
-import 'profile_page.dart';
+import '../models/potato_data_model.dart';
+import '../services/auth.dart';
 
 class RegistrationPage extends StatefulWidget {
   @override
@@ -18,10 +23,113 @@ enum Profile {farmer,storage,wholesaler,retail,transporter,consumer}
 
 class _RegistrationPageState extends State<RegistrationPage> {
   final _formKey = GlobalKey<FormState>();
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+  final numDashboardController = TextEditingController(text: '1');
+  final initialWeightController = TextEditingController();
+  static List<Map<String,dynamic>> dashboardDataList = [
+    {}
+  ];
+
   bool checkedValue = false;
   bool checkboxValue = false;
-  Profile? _profile = Profile.farmer;
+  final AuthServices _authService = AuthServices();
 
+  late PotatoData selectedVariety;
+  late String variety;
+  late String varietyType;
+  late String profile;
+  late String endUse;
+  late String facilities;
+  int numDashboard = 1;
+  List<String> varietyList = [
+    'Saturna',
+    'Kennebec',
+    'Agria',
+    'Toyoshiro',
+    'K Chipsona1',
+    'K Jyoti',
+    'Wu-foon',
+    'Norchip',
+    'K Chipsona2',
+    'Vangodh',
+    'Bintje',
+    'Simcoe',
+    'Onaway',
+    'Cardinal',
+    'K Badshah',
+    'K Lauvkar',
+    'None'
+  ];
+
+  List<String> varietyTypeList = [
+    'None',
+    'Cold-sensitive or High-sugar accumulating',
+    'Cold-resistant or Low-sugar accumulating',
+  ];
+
+  List<String> profilesList = [
+    'Farmer',
+    'Storage',
+    'Wholesaler',
+    'Transporter',
+    'Retail',
+    'Consumer'
+  ];
+
+  List<String> endUseList =[
+    'Chips',
+    'Domestic use',
+    'Starch',
+    'Animal feed',
+    'Seeds'
+  ];
+
+  List<String> facilitiesList = [
+    'Ambient',
+    'Cold storage',
+    'Both'
+  ];
+
+  void refreshVariety(String val){
+    variety = val;
+    setState(()=>{});
+  }
+
+  void refreshVarietyType(String val){
+    varietyType = val;
+    setState(()=>{});
+  }
+
+  void refreshProfile(String val){
+    profile = val;
+    setState(()=>{});
+  }
+
+  void refreshEndUse(String val){
+    endUse = val;
+    setState(()=>{});
+  }
+
+  void refreshFacilities(String val){
+    facilities = val;
+    setState(()=>{});
+  }
+
+  /// Initializer
+  @override
+  void initState() {
+    super.initState();
+    variety = varietyList[0]; /// initialize default variety to first variety i.e Saturna
+    varietyType = varietyTypeList[0]; /// initialize default varietyType to first varietyType i.e. Cold-sensitive or High-sugar accumulating
+    profile = profilesList[0];
+    endUse = endUseList[0];
+    facilities = facilitiesList[0];
+    selectedVariety = PotatoData();
+    selectedVariety.initializeWithAllDayData(variety);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +179,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       child: Column(
                         children: [
                           SizedBox(
-                            height: height*0.2,
+                            height: height*0.15,
                           ),
                           Container(
                             child: Text('Looks like you don\'t have an account',
@@ -89,31 +197,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           ),
                           Container(
                             child: TextFormField(
+                              controller: nameController,
                               decoration: ThemeHelper().textInputDecoration(
                                   'Name', 'Enter your name'),
+                              validator: (val) => val!.isEmpty ? "Enter your name" : null,
                             ),
                             // decoration: ThemeHelper().inputBoxDecorationShaddow(),
                           ),
-                          // SizedBox(
-                          //   height: 30,
-                          // ),
-                          // Container(
-                          //   child: TextFormField(
-                          //     decoration: ThemeHelper().textInputDecoration(
-                          //         'Last Name', 'Enter your last name'),
-                          //   ),
-                          //   decoration: ThemeHelper().inputBoxDecorationShaddow(),
-                          // ),
                           SizedBox(height: 20.0),
                           Container(
                             child: TextFormField(
+                              controller: emailController,
                               decoration: ThemeHelper().textInputDecoration(
                                   "E-mail address", "Enter your email"),
                               keyboardType: TextInputType.emailAddress,
-                              validator: (val) {
-                                if (!(val!.isEmpty) &&
-                                    !RegExp(r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$")
-                                        .hasMatch(val)) {
+                              validator: (email) {
+                                if ( email != null && !EmailValidator.validate(email)) {
                                   return "Enter a valid email address";
                                 }
                                 return null;
@@ -121,31 +220,16 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             ),
                             // decoration: ThemeHelper().inputBoxDecorationShaddow(),
                           ),
-                          // SizedBox(height: 20.0),
-                          // Container(
-                          //   child: TextFormField(
-                          //     decoration: ThemeHelper().textInputDecoration(
-                          //         "Mobile Number", "Enter your mobile number"),
-                          //     keyboardType: TextInputType.phone,
-                          //     validator: (val) {
-                          //       if (!(val!.isEmpty) &&
-                          //           !RegExp(r"^(\d+)*$").hasMatch(val)) {
-                          //         return "Enter a valid phone number";
-                          //       }
-                          //       return null;
-                          //     },
-                          //   ),
-                          //   // decoration: ThemeHelper().inputBoxDecorationShaddow(),
-                          // ),
                           SizedBox(height: 20.0),
                           Container(
                             child: TextFormField(
+                              controller: passwordController,
                               obscureText: true,
                               decoration: ThemeHelper().textInputDecoration(
                                   "Password", "Enter your password"),
-                              validator: (val) {
-                                if (val!.isEmpty) {
-                                  return "Please enter your password";
+                              validator: (password) {
+                                if (password!.isEmpty && password.length< 6) {
+                                  return "Enter minimum 6 characters";
                                 }
                                 return null;
                               },
@@ -155,11 +239,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           SizedBox(height: 20.0),
                           Container(
                             child: TextFormField(
+                              controller: confirmPasswordController,
                               obscureText: true,
                               decoration: ThemeHelper().textInputDecoration(
                                   "Confirm password", "Confirm password"),
                               validator: (val) {
-                                if (val!.isEmpty) {
+                                if (val!.isEmpty && val.length < 6) {
                                   return "Please enter your password";
                                 }
                                 return null;
@@ -167,255 +252,172 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             ),
                             // decoration: ThemeHelper().inputBoxDecorationShaddow(),
                           ),
+                          SizedBox(height: 30.0),
+                          Row(
+                            children: [
+                              Text('Profile: ',style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                              ),),
+                              SizedBox(width: 8,),
+                              Expanded(
+                                child: DropdownWidget(itemList: profilesList, dropdownValue: profile, notifyParent: refreshProfile),
+                              ),
+                            ],
+                          ),
                           SizedBox(height: 20.0),
-                          Container(
-                            child: Column(
-                              children: [
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Text(
-                                    'Profile',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 20,
+                          Row(
+                            children: [
+                              Text('End use: ',style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                              ),),
+                              SizedBox(width: 8,),
+                              Expanded(
+                                child: DropdownWidget(itemList: endUseList, dropdownValue: endUse, notifyParent: refreshEndUse),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 20.0),
+                          Row(
+                            children: [
+                              Text('Facilities: ',style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                              ),),
+                              SizedBox(width: 8,),
+                              Expanded(
+                                child: DropdownWidget(itemList: facilitiesList, dropdownValue: facilities, notifyParent: refreshFacilities),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 20.0),
+                          Row(
+                            children: [
+                              Text('No. of systems: ',style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                              ),),
+                              SizedBox(width: 8,),
+                              Expanded(
+                                child: TextFormField(
+                                  controller: numDashboardController,
+                                  validator: (value) {
+                                    if(value!.isEmpty) return 'please enter a value';
+                                    if(int.parse(value) > 5) return '0 < value < 5';
+                                    return null;
+                                  },
+                                  onChanged: (value){
+                                    if(value != '') setState(() => numDashboard = int.parse(value));
+                                    // if(value == '') setState(() => numDashboard = 1);
+                                  },
+                                  style: TextStyle(color: Colors.white),
+                                  decoration: InputDecoration(
+                                    labelText: "Enter number",
+                                    labelStyle: TextStyle(
+                                      color: Colors.white54,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                                      borderSide: BorderSide(color: Color(0xFFFFFFFF), width: 5.0),
                                     ),
                                   ),
-                                ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: ListTile(
-                                      title: Text('Farmer'),
-                                      leading: Radio(
-                                          value: Profile.farmer,
-                                          groupValue: _profile,
-                                          onChanged: (Profile? value){
-                                            setState(() => _profile = value);
-                                          }),
-                                        contentPadding: EdgeInsets.zero,
-                                        horizontalTitleGap: 0,
-                                  ),
-                                    ),
-                                    Expanded(
-                                      child: ListTile(
-                                        title: Text('Storage'),
-                                        leading: Radio(
-                                            value: Profile.storage,
-                                            groupValue: _profile,
-                                            onChanged: (Profile? value){
-                                              setState(() => _profile = value);
-                                            }),
-                                        contentPadding: EdgeInsets.zero,
-                                        horizontalTitleGap: 0,
-                                      ),
-                                    ),
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
                                   ],
                                 ),
-                                Row(children: [
-                                  Expanded(child: ListTile(
-                                    title: Text('Wholesaler'),
-                                    leading: Radio(
-                                        value: Profile.wholesaler,
-                                        groupValue: _profile,
-                                        onChanged: (Profile? value){
-                                          setState(() => _profile = value);
-                                        }),
-                                    contentPadding: EdgeInsets.zero,
-                                    horizontalTitleGap: 0,
-                                  )),
-                                  Expanded(child: ListTile(
-                                    title: Text('Transporter'),
-                                    leading: Radio(
-                                        value: Profile.transporter,
-                                        groupValue: _profile,
-                                        onChanged: (Profile? value){
-                                          setState(() => _profile = value);
-                                        }),
-                                    contentPadding: EdgeInsets.zero,
-                                    horizontalTitleGap: 0,
-                                  ),)
-                                ],),
-                                Row(
-                                  children: [
-                                    Expanded(child: ListTile(
-                                      title: Text('Retail'),
-                                      leading: Radio(
-                                          value: Profile.retail,
-                                          groupValue: _profile,
-                                          onChanged: (Profile? value){
-                                            setState(() => _profile = value);
-                                          }),
-                                      contentPadding: EdgeInsets.zero,
-                                      horizontalTitleGap: 0,
-                                    ),),
-                                    Expanded(child: ListTile(
-                                      title: Text('Consumer'),
-                                      leading: Radio(
-                                          value: Profile.consumer,
-                                          groupValue: _profile,
-                                          onChanged: (Profile? value){
-                                            setState(() => _profile = value);
-                                          }),
-                                      contentPadding: EdgeInsets.zero,
-                                      horizontalTitleGap: 0,
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: <Widget>[
 
-                                    ),)
+                              for(int i = 1; i<= numDashboard; i++)
+                                Column(
+                                  children: [
+                                    SizedBox(height: 20.0),
+                                    Text(
+                                      'System $i',
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontWeight: FontWeight.w700
+                                      ),
+                                    ),
+                                    SizedBox(height: 20.0),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Initial weight (kg): ', style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 16,
+                                        ),),
+                                        SizedBox(width: 8,),
+                                        Expanded(
+                                          child: TextFormField(
+                                            controller: initialWeightController,
+                                            style: TextStyle(color: Colors.white),
+                                            decoration: InputDecoration(
+                                              labelText: "Enter weight (kg)",
+                                              labelStyle: TextStyle(
+                                                color: Colors.white54,
+                                              ),
+                                              border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(8)),
+                                                borderSide: BorderSide(
+                                                    color: Color(0xFFFFFFFF),
+                                                    width: 5.0),
+                                              ),
+                                            ),
+                                            keyboardType: TextInputType.number,
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter
+                                                  .digitsOnly,
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 20.0),
+                                    Row(
+                                      children: [
+                                        Text('Potato variety: ', style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 16,
+                                        ),),
+                                        SizedBox(width: 8,),
+                                        Expanded(
+                                          child: DropdownWidget(
+                                              itemList: varietyList,
+                                              dropdownValue: variety,
+                                              notifyParent: refreshVariety),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 20.0),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Nature of variety: ', style: TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 16,
+                                        ),),
+                                        SizedBox(width: 8,),
+                                        Expanded(
+                                          child: DropdownWidget(
+                                              itemList: varietyTypeList,
+                                              dropdownValue: varietyType,
+                                              notifyParent: refreshVarietyType),
+                                        ),
+                                      ],
+                                    ),
                                   ],
-                                ),
-                              ],
-                            ),
+                                )
+                                ],
                           ),
-                          SizedBox(height: 20.0),
-                          Container(
-                            child: Column(
-                              children: [
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Text(
-                                    'End use',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: ListTile(
-                                        title: Text('Farmer'),
-                                        leading: Radio(
-                                            value: Profile.farmer,
-                                            groupValue: _profile,
-                                            onChanged: (Profile? value){
-                                              setState(() => _profile = value);
-                                            }),
-                                        contentPadding: EdgeInsets.zero,
-                                        horizontalTitleGap: 0,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: ListTile(
-                                        title: Text('Storage'),
-                                        leading: Radio(
-                                            value: Profile.storage,
-                                            groupValue: _profile,
-                                            onChanged: (Profile? value){
-                                              setState(() => _profile = value);
-                                            }),
-                                        contentPadding: EdgeInsets.zero,
-                                        horizontalTitleGap: 0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(children: [
-                                  Expanded(child: ListTile(
-                                    title: Text('Wholesaler'),
-                                    leading: Radio(
-                                        value: Profile.wholesaler,
-                                        groupValue: _profile,
-                                        onChanged: (Profile? value){
-                                          setState(() => _profile = value);
-                                        }),
-                                    contentPadding: EdgeInsets.zero,
-                                    horizontalTitleGap: 0,
-                                  )),
-                                  Expanded(child: ListTile(
-                                    title: Text('Transporter'),
-                                    leading: Radio(
-                                        value: Profile.transporter,
-                                        groupValue: _profile,
-                                        onChanged: (Profile? value){
-                                          setState(() => _profile = value);
-                                        }),
-                                    contentPadding: EdgeInsets.zero,
-                                    horizontalTitleGap: 0,
-                                  ),)
-                                ],),
-                                Row(
-                                  children: [
-                                    Expanded(child: ListTile(
-                                      title: Text('Retail'),
-                                      leading: Radio(
-                                          value: Profile.retail,
-                                          groupValue: _profile,
-                                          onChanged: (Profile? value){
-                                            setState(() => _profile = value);
-                                          }),
-                                      contentPadding: EdgeInsets.zero,
-                                      horizontalTitleGap: 0,
-                                    ),),
-                                    Expanded(child: SizedBox(),)
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 20.0),
-                          Container(
-                            child: Column(
-                              children: [
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Text(
-                                    'Facilities',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: ListTile(
-                                        title: Text('Farmer'),
-                                        leading: Radio(
-                                            value: Profile.farmer,
-                                            groupValue: _profile,
-                                            onChanged: (Profile? value){
-                                              setState(() => _profile = value);
-                                            }),
-                                        contentPadding: EdgeInsets.zero,
-                                        horizontalTitleGap: 0,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: ListTile(
-                                        title: Text('Storage'),
-                                        leading: Radio(
-                                            value: Profile.storage,
-                                            groupValue: _profile,
-                                            onChanged: (Profile? value){
-                                              setState(() => _profile = value);
-                                            }),
-                                        contentPadding: EdgeInsets.zero,
-                                        horizontalTitleGap: 0,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Expanded(child: ListTile(
-                                      title: Text('Retail'),
-                                      leading: Radio(
-                                          value: Profile.retail,
-                                          groupValue: _profile,
-                                          onChanged: (Profile? value){
-                                            setState(() => _profile = value);
-                                          }),
-                                      contentPadding: EdgeInsets.zero,
-                                      horizontalTitleGap: 0,
-                                    ),),
-                                    Expanded(child: SizedBox(),)
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: height*0.02),
+
+                          SizedBox(height: height*0.05),
                           Container(
                             decoration:
                             ThemeHelper().buttonBoxDecoration(context),
@@ -433,12 +435,48 @@ class _RegistrationPageState extends State<RegistrationPage> {
                                   ),
                                 ),
                               ),
-                              onPressed: () {
-                                if (_formKey.currentState!.validate()) {
-                                  Navigator.of(context).pushAndRemoveUntil(
-                                      MaterialPageRoute(
-                                          builder: (context) => ProfilePage()),
-                                          (Route<dynamic> route) => false);
+                              onPressed: () async{
+                                print(dashboardDataList);
+                                if (_formKey.currentState!.validate()){
+                                      User? user = await _authService
+                                        .createUserWithEmailAndPassword(
+                                          context,
+                                          email: emailController.text.trim(),
+                                          password: passwordController.text
+                                              .trim(),
+                                        name: nameController.text,
+                                        );
+                                      if(user == null){
+
+                                      } else {
+                                        await createUser(
+                                            name: nameController.text,
+                                            email: emailController.text,
+                                            password: passwordController.text,
+                                            uid: user.uid,
+                                            variety: variety,
+                                            numDashboard: int.parse(numDashboardController.text.trim()),
+                                            profile: profile,
+                                            varietyType: varietyType,
+                                            initialWeight: initialWeightController
+                                                .text == '' ? 1000 : double.parse(
+                                                initialWeightController.text));
+                                        final snackBar = SnackBar(content: Text(
+                                          'User created successfully',
+                                          style: TextStyle(color: Colors.white),),
+                                          backgroundColor: Colors.green,);
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(snackBar);
+                                        await Future.delayed(
+                                            Duration(seconds: 2), () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    LoginPage()),
+                                          );
+                                        });
+                                      }
                                 }
                               },
                             ),
@@ -562,5 +600,67 @@ class _RegistrationPageState extends State<RegistrationPage> {
       )
     );
 
+
+
+  }
+  Widget buildDropdownWidget({required List itemList, required String dropdownValue, required dynamic setStateFunc}){
+
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black38),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: 8),
+      child: DropdownButton<String>(
+        value: dropdownValue,
+        isExpanded: true,
+        underline: Container(
+          color: Colors.transparent,
+        ),
+        icon: const Icon(Icons.arrow_drop_down),
+        elevation: 0,
+        dropdownColor: Colors.grey[900],
+        style: const TextStyle(color: Colors.white),
+        onChanged: (String? newValue) async{
+
+          dropdownValue = newValue!;
+          selectedVariety.variety = dropdownValue;
+          await selectedVariety.initializeWithAllDayData(dropdownValue);
+          setStateFunc();
+          setState(()  {
+          });
+        },
+        items: varietyList
+            .map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Future createUser({required String name, required String email, required String password, required String uid, double initialWeight = 1000, String crop = 'Potato', String profile = "Farmer",String endUse = "Chips", String variety="Saturna", String varietyType="None", int numDashboard = 2}) async{
+    final newUser = FirebaseFirestore.instance.collection('Users').doc(uid);
+    final userDataJSON = {
+      "uid" : uid,
+      "Name": name,
+      "Email": email,
+      "Password": password,
+      "Crop": crop,
+      "Initial Weight": initialWeight,
+      "Start Date": DateTime.now(),
+      "Profile": profile,
+      "End use": endUse,
+      "Variety": variety,
+      "Variety Type": varietyType,
+      "Dashboards": numDashboard,
+    };
+    //write user data to database collection
+    await newUser.set(userDataJSON);
   }
 }
+
+
+

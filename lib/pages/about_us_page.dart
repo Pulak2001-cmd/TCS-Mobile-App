@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
 
 class AboutUsPage extends StatefulWidget {
   const AboutUsPage({Key? key}) : super(key: key);
@@ -44,17 +45,18 @@ class _AboutUsPageState extends State<AboutUsPage> {
                     color: Colors.white,
                     fontSize: 30,
                     fontWeight: FontWeight.w700
-                  ),),
+                  ),
+                  textAlign: TextAlign.center,),
                   SizedBox(height: 32,),
-                  buildCard('Real Time Quality Monitoring','Assess current and future quality using in-built models'),
+                  buildCard(HexColor('#FF5F6D'),HexColor('#FFC371'),'Real Time Quality Monitoring','Assess current and future quality using in-built models'),
                   SizedBox(height: 16,),
-                  buildCard('Optimise Storage of Lot','Segregate lot based on quality and store-sell differently'),
+                  buildCard(HexColor('#11998e'),HexColor('#38ef7d'),'Optimise Storage of Lot','Segregate lot based on quality and store-sell differently'),
                   SizedBox(height: 16,),
-                  buildCard('Image Analytics','Detect Visual changes in lot ot get overall health status'),
+                  buildCard(HexColor('#2193b0'), HexColor('#6dd5ed'),'Image Analytics','Detect Visual changes in lot ot get overall health status'),
                   SizedBox(height: 16,),
-                  buildCard('Corrective Action Suggestion','Know recommended actions for improving below-par produce quality'),
+                  buildCard(HexColor('#ec008c'), HexColor('#fc6767'),'Corrective Action Suggestion','Know recommended actions for improving below-par produce quality'),
                   SizedBox(height: 16,),
-                  buildCard('Knowledge Centre','Know best practices for most efficient produce handling'),
+                  buildCard(HexColor('#c0c0aa'), HexColor('#1cefff'),'Knowledge Centre','Know best practices for most efficient produce handling'),
                 ]
               ),
             ),
@@ -64,22 +66,34 @@ class _AboutUsPageState extends State<AboutUsPage> {
     );
   }
 
-  Widget buildCard( String title, String body) {
+  Widget buildCard(HexColor color1, HexColor color2, String title, String body) {
     return Container(
       decoration: BoxDecoration(
-          color: Colors.black12,
-          borderRadius: BorderRadius.circular(16)
+        gradient: LinearGradient(
+          colors: [
+            color1,
+            color2,
+          ],
+          begin: Alignment.bottomLeft,
+          end: Alignment.topRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 15.0,
+        ),],
       ),
       padding: EdgeInsets.all(16),
       child: Column(
         children: [
           Text(title, style: TextStyle(
               color: Colors.white,
-              fontSize: 20
+              fontSize: 20,
+            fontWeight: FontWeight.w600
           ),),
           SizedBox(height: 8,),
           Text(body,style: TextStyle(
-              color: Colors.white54,
+              color: Colors.white,
               fontSize: 16
           ),),
         ],

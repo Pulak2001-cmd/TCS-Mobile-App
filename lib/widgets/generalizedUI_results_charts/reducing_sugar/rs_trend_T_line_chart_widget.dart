@@ -26,11 +26,9 @@ class _RSTrendTLineChartWidgetState extends State<RSTrendTLineChartWidget> {
 
   Future<List<FlSpot>> futureLineChartData(Array timeVec, List<double?> reducing_sugar) async {
     List<FlSpot> lineChartData = [];
-    print(widget.currentRS);
-    print(widget.T);
     for (var time in timeVec){
       double? result = await widget.selectedVariety.RS_day(time, widget.T, widget.currentRS);
-      result = double.parse((result?.toStringAsFixed(1))!);
+      result = double.parse((result?.toStringAsFixed(5))!);
       reducing_sugar.add(result);
     }
     for(var i = 0; i< timeVec.length; i++)
@@ -55,14 +53,21 @@ class _RSTrendTLineChartWidgetState extends State<RSTrendTLineChartWidget> {
                     minX:0,
                     maxX: 100,
                     minY: minAxisLabel,
-                    maxY: maxAxisLabel,
+                    maxY: 0.5,
                     gridData: FlGridData(
                       show: true,
                       getDrawingHorizontalLine: (val) {
-                        return FlLine(
-                          color: Colors.blueGrey[100]?.withOpacity(0.3),
-                          strokeWidth: 1,
-                        );
+                        if(val == 0.3){
+                          return FlLine(
+                            color: Colors.redAccent[100]?.withOpacity(0.3),
+                            strokeWidth: 1,
+                          );
+                        } else {
+                          return FlLine(
+                            color: Colors.blueGrey[100]?.withOpacity(0.3),
+                            strokeWidth: 1,
+                          );
+                        }
                       },
                       getDrawingVerticalLine: (val) {
                         return FlLine(
@@ -78,9 +83,20 @@ class _RSTrendTLineChartWidgetState extends State<RSTrendTLineChartWidget> {
                         width: 1,
                       ),
                     ),
+                    extraLinesData: ExtraLinesData(
+                      horizontalLines: [
+                        HorizontalLine(
+                          y: 0.3,
+                          color: Colors.red,
+                          strokeWidth: 1,
+                        )
+                      ]
+                    ),
                     lineBarsData: [
                       LineChartBarData(
-                        spots: snapshot.data as List<FlSpot>,
+                        /// clipping data above the 0.5% RS value, very complex expression should be broken down and simplified
+                        spots: (snapshot.data as List<FlSpot>).where((element) => element.y <= 0.5).toList().last.y <= 0.5 ? (snapshot.data as List<FlSpot>).where((element) => element.y <= 0.5).toList() : [...(snapshot.data as List<FlSpot>).where((element) => element.y <= 0.5).toList(), FlSpot((snapshot.data as List<FlSpot>).firstWhere((element) => element.y > 0.5).x, 0.5)],
+                        // spots: (snapshot.data as List<FlSpot>),
                         isCurved: true,
                         gradient: LinearGradient(
                           colors: [
@@ -117,7 +133,8 @@ class _RSTrendTLineChartWidgetState extends State<RSTrendTLineChartWidget> {
                           sideTitles: SideTitles(
                             getTitlesWidget: leftTitleWidgets,
                             showTitles: true,
-                            interval: axisLabelsInterval(flattenedData),
+                            // interval: axisLabelsInterval(flattenedData),
+                            interval: 0.1,
                             reservedSize: 40,
                           )
                       ),
@@ -151,11 +168,9 @@ class _RSTrendTLineChartWidgetState extends State<RSTrendTLineChartWidget> {
     );
     String text;
     if(value == maxAxisLabel || value == minAxisLabel){
-      print('textValue: 123');
       text = '${value.toStringAsFixed(1)} %';
     } else {
       double textValue = value + minAxisLabel;
-      print('textValue: $textValue');
       text = '${textValue.toStringAsFixed(1)} %';
     }
     return Text(text, style: style, textAlign: TextAlign.center);

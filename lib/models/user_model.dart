@@ -1,41 +1,38 @@
 import 'dart:math';
 
-class User {
-  // String id;
+class UserModel {
+  final String? uid;
   final String? name;
+  final String? email;
   final String? crop;
-  final int? temperature;
-  final int? relativeHumidity;
-  final int? ethyleneConc;
-  final int? co2Conc;
-  final int? currentWeight;
+  final String? variety;
+  final String? profile;
   final DateTime? startDate;
-  final int? initialWeight;
+  final DateTime? startDate2;
+  final double? initialWeight;
 
-  User({
-    // required this.id,
+  UserModel({
+    this.uid,
     this.name,
+    this.email,
     this.crop,
-    this.temperature,
-    this.relativeHumidity,
-    this.ethyleneConc,
-    this.co2Conc,
-    this.currentWeight,
+    this.variety,
+    this.profile,
     this.startDate,
+    this.startDate2,
     this.initialWeight,
   });
 
-  static User fromJson(Map<String,dynamic> json) => User(
-    // id: json['id'],
+  static UserModel fromJson(Map<String,dynamic> json) => UserModel(
+    uid: json['uid'],
     name: json['Name'],
+    email: json['Email'],
     crop: json['Crop'],
-    temperature: json['Temperature'],
-    relativeHumidity: json['Relative Humidity'],
-    ethyleneConc: json['Ethylene Conc.'],
-    co2Conc: json['CO2 Conc.'],
-    currentWeight: json['Weight'],
+    variety: json['Variety'],
+    profile: json['Profile'],
     startDate: (json['Start Date']).toDate(),
-    initialWeight: json['Initial Weight'],
+    startDate2: json['Start Date 2'] == null ? null: (json['Start Date 2']).toDate(),
+    initialWeight: double.parse(json['Initial Weight'].toString()),
   );
 
 }

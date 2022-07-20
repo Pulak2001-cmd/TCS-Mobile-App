@@ -1,13 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_login_ui/pages/realtime_monitoring_screens/line_chart_widgets/test/prediction_line_chat_widget.dart';
-import 'package:flutter_login_ui/pages/realtime_monitoring_screens/line_chart_widgets/variation_in_predicted_parameters/ph_line_chart.dart';
-import 'package:flutter_login_ui/pages/realtime_monitoring_screens/line_chart_widgets/variation_in_predicted_parameters/reducing_sugar_line_chart.dart';
-import 'package:flutter_login_ui/pages/realtime_monitoring_screens/line_chart_widgets/variation_in_predicted_parameters/starch_line_chart.dart';
-import 'package:flutter_login_ui/pages/realtime_monitoring_screens/line_chart_widgets/variation_in_predicted_parameters/total_sugar_line_chart.dart';
-import 'package:flutter_login_ui/pages/realtime_monitoring_screens/line_chart_widgets/variation_in_predicted_parameters/weight_line_chart.dart';
-import 'package:hexcolor/hexcolor.dart';
+import 'package:flutter_login_ui/widgets/prediction_line_chart_widget.dart';
+import 'package:provider/provider.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import '../../models/user_model.dart';
+import '../../providers/current_dashboard_provider.dart';
 
 class VariationsInPredictedParametersScreen extends StatefulWidget {
   const VariationsInPredictedParametersScreen({Key? key}) : super(key: key);
@@ -17,6 +16,9 @@ class VariationsInPredictedParametersScreen extends StatefulWidget {
 }
 
 class _VariationsInPredictedParametersScreenState extends State<VariationsInPredictedParametersScreen> {
+  Stream<List<UserModel>> readUsers() {
+    return FirebaseFirestore.instance.collection('Users').snapshots().map((snapshot) => snapshot.docs.map((doc) => UserModel.fromJson(doc.data())).toList()) ;
+  }
 
   int activeIndex1 =0;
 
@@ -30,6 +32,9 @@ class _VariationsInPredictedParametersScreenState extends State<VariationsInPred
 
   @override
   Widget build(BuildContext context) {
+    DatabaseReference dataRef = Provider.of<DashboardProvider>(context).dataRef;
+    // DatabaseReference dataRef = FirebaseDatabase.instance.ref().child('test');
+    double currentDashboard = Provider.of<DashboardProvider>(context).currentDashboard;
     return Container(
       color: Colors.transparent,
       child: Scaffold(
@@ -40,6 +45,87 @@ class _VariationsInPredictedParametersScreenState extends State<VariationsInPred
           child: SingleChildScrollView(
             child: Column(
               children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                            style: currentDashboard == 1 ? ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(Colors.white70),
+                              splashFactory: NoSplash.splashFactory,
+                              elevation: MaterialStateProperty.all(0.0),
+                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18.0),
+                                  side: BorderSide(color: Colors.white70),
+                                ),
+                              ),
+                            ) :ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(Colors.transparent),
+                              splashFactory: NoSplash.splashFactory,
+                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18.0),
+                                  side: BorderSide(color: Colors.white70),
+                                ),
+                              ),
+                              elevation: MaterialStateProperty.all(0.0),
+                            ),
+                            onPressed: (){
+                              Provider.of<DashboardProvider>(context, listen: false).setDashboard(1);
+                              setState((){
+                                dataRef = FirebaseDatabase.instance.ref().child('test');
+                              });
+                            },
+                            child: Text(
+                              'System 1',
+                              style: TextStyle(
+                                  color: Colors.white70
+                              ),)),
+                      ),
+                      SizedBox(width: 8,),
+                      Expanded(
+                        child: ElevatedButton(
+                            style: currentDashboard == 2 ? ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(Colors.white70),
+                              splashFactory: NoSplash.splashFactory,
+                              elevation: MaterialStateProperty.all(0.0),
+                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18.0),
+                                  side: BorderSide(color: Colors.white70),
+                                ),
+                              ),
+                            ) :ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(Colors.transparent),
+                              splashFactory: NoSplash.splashFactory,
+                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18.0),
+                                  side: BorderSide(color: Colors.white70),
+                                ),
+                              ),
+                              elevation: MaterialStateProperty.all(0.0),
+                            ),
+                            onPressed: (){
+                              Provider.of<DashboardProvider>(context, listen: false).setDashboard(2);
+                              setState((){
+                                dataRef = FirebaseDatabase.instance.ref().child('sensor-2');
+                              });
+                            },
+                            child: Text(
+                              'System 2',
+                              style: TextStyle(
+                                color: Colors.white70,
+                              ),
+                            )),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 8,),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text('Variations in predicted parameters',
@@ -70,7 +156,7 @@ class _VariationsInPredictedParametersScreenState extends State<VariationsInPred
                               'Legend',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 15,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -83,6 +169,9 @@ class _VariationsInPredictedParametersScreenState extends State<VariationsInPred
                               children: [
                                 GradientText(
                                   'Past predictions',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                  ),
                                   colors: [
                                     Colors.red[200]!,
                                     Colors.red[500]!,
@@ -110,16 +199,37 @@ class _VariationsInPredictedParametersScreenState extends State<VariationsInPred
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    buildGraph(PredictionLineChartWidget(parameter: 'Weight', digitsAfterDecimal: 0)),
+                    buildGraph(PredictionLineChartWidget(parameter: 'Weight', digitsAfterDecimal: 0, dataRef: dataRef,)),
                     Text(
-                      'Reducing Sugar (1E-5 %w/FW)',
+                      'Reducing Sugar (%w/FW)',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    buildGraph(PredictionLineChartWidget(parameter: 'Reducing Sugar', digitsAfterDecimal: 1)),
+                    // buildGraph(PredictionLineChartWidget(parameter: 'Reducing Sugar', digitsAfterDecimal: 1, dataRef: dataRef)),
+                    StreamBuilder<Object>(
+                      stream: readUsers(),
+                      builder: (context, snapshot) {
+                        if(snapshot.hasData){
+                          final users = snapshot.data as List<UserModel>;
+                          UserModel? user;
+                          if (users.length > 0){
+                            user = users.firstWhere((user) => user.uid == Provider.of<User?>(context)?.uid);
+                          }
+                          return buildGraph(PredictionLineChartWidget(parameter: 'Reducing Sugar', digitsAfterDecimal: 1, dataRef: dataRef, variety: user?.variety,));
+                        } else if(snapshot.hasError){
+                          print(snapshot.error);
+                          return Text('Something went wrong');
+                        } else {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                      }
+                    ),
                     Text(
                       'Total Sugar (%w/FW)',
                       style: TextStyle(
@@ -128,7 +238,7 @@ class _VariationsInPredictedParametersScreenState extends State<VariationsInPred
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    buildGraph(PredictionLineChartWidget(parameter: 'Total sugar', digitsAfterDecimal: 1)),
+                    buildGraph(PredictionLineChartWidget(parameter: 'Total sugar', digitsAfterDecimal: 1, dataRef: dataRef,)),
                     Text(
                       'pH',
                       style: TextStyle(
@@ -137,7 +247,7 @@ class _VariationsInPredictedParametersScreenState extends State<VariationsInPred
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    buildGraph(PredictionLineChartWidget(parameter: 'pH', digitsAfterDecimal: 1)),
+                    buildGraph(PredictionLineChartWidget(parameter: 'pH', digitsAfterDecimal: 1, dataRef: dataRef,)),
                     Text(
                       'Starch (%w/FW)',
                       style: TextStyle(
@@ -146,7 +256,7 @@ class _VariationsInPredictedParametersScreenState extends State<VariationsInPred
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    buildGraph(PredictionLineChartWidget(parameter: 'Starch', digitsAfterDecimal: 1)),
+                    buildGraph(PredictionLineChartWidget(parameter: 'Starch', digitsAfterDecimal: 1, dataRef: dataRef,)),
                   ]),
                 ),
               ],

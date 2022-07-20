@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/alert_provider.dart';
@@ -45,7 +46,7 @@ Widget buildSheet(ctx) {
                     ),
                     Expanded(
                       flex: 3,
-                      child: Text(Provider.of<AlertProvider>(context).getAlert(index), style: TextStyle(
+                      child: Text('${Provider.of<AlertProvider>(context).getAlert(index)['alertString']} \n ${DateFormat('d MMM, yy hh:mm aaa').format(Provider.of<AlertProvider>(context).getAlert(index)['timestamp'])}', style: TextStyle(
                         color: Colors.white70,
                       ),),
                     ),

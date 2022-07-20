@@ -1,10 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show ByteData, rootBundle;
-import 'package:excel/excel.dart';
-import 'package:flutter_login_ui/models/potato_data_model.dart';
-
-import '../models/user_model.dart';
+import 'package:flutter_login_ui/widgets/video_player_widget.dart';
+import 'package:hexcolor/hexcolor.dart';
+import 'package:video_player/video_player.dart';
 
 class TutorialPage extends StatefulWidget {
   const TutorialPage({Key? key}) : super(key: key);
@@ -14,35 +11,6 @@ class TutorialPage extends StatefulWidget {
 }
 
 class _TutorialPageState extends State<TutorialPage> {
-
-  Future readExcel() async {
-    ByteData data = await rootBundle.load("assets/excel/RS_model.xlsx");
-    var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-    var excel = Excel.decodeBytes(bytes);
-    print(excel.tables['CR_day']?.rows[1][1]?.value.runtimeType);
-  }
-
-  //Working stream
-  Stream<List<User>> readUsers() {
-    return FirebaseFirestore.instance.collection('Users').snapshots().map((snapshot) => snapshot.docs.map((doc) => User.fromJson(doc.data())).toList()) ;
-  }
-
-  //Working future
-  Future<List<User>> getData() async{
-    List<User> users = [];
-    await FirebaseFirestore.instance.collection("Users").get().then((event) {
-      for (var doc in event.docs) {
-        users.add(User.fromJson(doc.data()));
-        print(doc.data().values);
-      }
-    });
-    return users;
-  }
-
-  String? name;
-  String? crop;
-
-  PotatoData sampleData = PotatoData(variety: 'Kennebec', T_ref_reciprocal: 0.00358744,  k_ref: -0.0099,  E: 158.8,  minT: 2,  maxT: 10,);
 
   @override
   Widget build(BuildContext context) {
@@ -69,117 +37,81 @@ class _TutorialPageState extends State<TutorialPage> {
           backgroundColor: Colors.transparent,
         ),
         body: SafeArea(
-          child: StreamBuilder<List<User>>(
-            stream: readUsers(),
-            builder: (context, snapshot) {
-              if(snapshot.hasData){
-                final users = snapshot.data!;
-
-                return ListView(
-                  children: users.map(buildListView).toList(),
-                );
-              } else if(snapshot.hasError){
-                return Text('Something went wrong');
-              } else {
-                return Center(child: CircularProgressIndicator(),);
-              }
-            },
+          child: SingleChildScrollView(
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 16),
+              padding: EdgeInsets.symmetric(vertical: 16),
+              child: Column(
+                children: [
+                  buildCard(HexColor('#FF5F6D'),HexColor('#FFC371'),'Food Quality Prediction','You can use this feature for in-depth knowledge about a desired quality parameter of a desired food item by providing required input values. It has in-built mathematical and data-base models to estimate quality. ', isVideo: true),
+                  SizedBox(height: 16,),
+                  buildCard(HexColor('#11998e'),HexColor('#38ef7d'),'Warehouse Management (Realtime Monitoring)','You can use this feature for continuous real time quality monitoring of food stock stored in warehouse/chamber. This includes collecting data of storage conditions through sensors at regular intervals and employing this data and in-built models for estimating different quality parameters of food. It also includes collecting visual data collecting from cameras installed in warehouse for continuous quality inspection.'),
+                  SizedBox(height: 16,),
+                  buildCard(HexColor('#2193b0'), HexColor('#6dd5ed'),'Shelf Life Prediction (Different applications)','You can use this feature for shelf life prediction of desired food item at ambient as well as cold/storage condition by providing image as input. It has in-built machine learning models for making predictions. '),
+                  SizedBox(height: 16,),
+                  buildCard(HexColor('#ec008c'), HexColor('#fc6767'),'Best Practices','You can use this feature for detailed information about dos and don’ts of storage of desired food item. This does not require any input from user. It provides typical guidelines for the storage. '),
+                  SizedBox(height: 16,),
+                  buildCard(HexColor('#c0c0aa'), HexColor('#1cefff'),'Profile','Your account information'),
+                ],
+              ),
+            ),
           ),
-          // child: Container(
-          //   margin: EdgeInsets.all(16),
-          //   child: Column(
-          //     children: [
-          //       TextFormField(
-          //         decoration: InputDecoration(
-          //           label: Text('Enter name',style: TextStyle(
-          //             color: Colors.white54,
-          //           ),),
-          //           border: OutlineInputBorder(),
-          //         ),
-          //         style: TextStyle(
-          //           color: Colors.white,
-          //         ),
-          //         onChanged: (value){
-          //           setState(() => name = value);
-          //         },
-          //       ),
-          //       SizedBox(height: 8,),
-          //       TextFormField(
-          //         decoration: InputDecoration(
-          //           label: Text('Enter crop',style: TextStyle(
-          //             color: Colors.white54,
-          //           ),),
-          //           border: OutlineInputBorder(),
-          //         ),
-          //         style: TextStyle(
-          //           color: Colors.white,
-          //         ),
-          //         onChanged: (value){
-          //           setState(() => crop = value);
-          //         },
-          //       ),
-          //       FutureBuilder<List<User>>(
-          //         future: getData(),
-          //         builder: (context, snapshot) {
-          //           if(snapshot.hasData){
-          //             final users = snapshot.data!;
-          //
-          //             return ListView(
-          //               children: users.map(buildListView).toList(),
-          //             );
-          //           } else if(snapshot.hasError){
-          //             return Text('Something went wrong');
-          //           } else {
-          //             return Center(child: CircularProgressIndicator(),);
-          //           }
-          //         },
-          //       ),
-          //     ],
-          //   ),
-          // ),
         ),
-        // floatingActionButton: ElevatedButton(
-        //   child: Icon(Icons.add),
-        //   onPressed: (){
-        //     // createUser(name!,crop!); //Sends data to database
-        //     getData();
-        //   },
-        // ),
       ),
     );
   }
 
-  Widget buildListView(User user) => Card(
-    child: ListTile(
-      title: Text(user.name ?? 'User\'s Name'),
-      subtitle: Text(user.crop ?? 'User\'s Crop'),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(user.temperature.toString()),
-          SizedBox(width: 4,),
-          Text(user.relativeHumidity.toString()),
-          SizedBox(width: 4,),
-          Text(user.ethyleneConc.toString()),
-          SizedBox(width: 4,),
-          Text(user.co2Conc.toString()),
-        ],
+  Widget buildCard(HexColor color1, HexColor color2, String title, String body, {bool isVideo = false}){
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            color1,
+            color2,
+          ],
+          begin: Alignment.bottomLeft,
+          end: Alignment.topRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(
+          color: Colors.black.withOpacity(0.1),
+          blurRadius: 15.0,
+        ),],
       ),
-    ),
-  );
+      // padding: EdgeInsets.all(16),
+      child: Theme(
+        data: ThemeData().copyWith(dividerColor: Colors.transparent, splashColor: Colors.transparent, highlightColor: Colors.transparent,),
+        child: ExpansionTile(
+          title: Text(
+            title,
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.w400
+            ),
+          ),
+          initiallyExpanded: false,
+          expandedCrossAxisAlignment: CrossAxisAlignment.start,
+          expandedAlignment: Alignment.topLeft,
+          iconColor: Colors.white70,
+          collapsedIconColor: Colors.white70,
+          backgroundColor: Colors.transparent,
+          collapsedBackgroundColor: Colors.transparent,
+          childrenPadding: EdgeInsets.all(16).copyWith(top: 8),
+          children: [
+                  Text(body,style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16
+                  ),),
+                  isVideo ? VideoPlayerWidget(
+                      videoPlayerController: VideoPlayerController.asset('assets/videos/tutorial_page/generalizedUI_tut_video.mp4'),
+                      looping: false,
+                  ) : SizedBox(),
+                ],
 
-  // Function to create an entry in the Firestore database
-  Future createUser(String name, String crop) async{
-    final docUser = FirebaseFirestore.instance.collection('test_collection').doc();
-
-    final json = {
-      'id': docUser.id,
-      'Name': name,
-      'Crop': crop,
-      'Date Created': DateTime.now(),
-
-    };
-
-    await docUser.set(json);
+        ),
+      ),
+    );
   }
 }

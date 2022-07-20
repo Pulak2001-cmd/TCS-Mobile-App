@@ -1,10 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_login_ui/pages/about_us_page.dart';
 import 'package:flutter_login_ui/pages/best_practices_page.dart';
+import 'package:flutter_login_ui/pages/onboarding_page.dart';
 import 'package:flutter_login_ui/pages/profile_page.dart';
+import 'package:flutter_login_ui/services/auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import 'package:provider/provider.dart';
+import '../models/user_model.dart';
 import '../pages/forgot_password_page.dart';
 import '../pages/forgot_password_verification_page.dart';
 import '../pages/generalized_ui_page.dart';
@@ -19,6 +25,19 @@ import '../pages/tutorial_page.dart';
 class SideDrawer extends StatelessWidget {
   const SideDrawer({Key? key}) : super(key: key);
 
+
+  Stream<List<UserModel>> readUsers() {
+    return FirebaseFirestore.instance.collection('Users').snapshots().map((snapshot) => snapshot.docs.map((doc) => UserModel.fromJson(doc.data())).toList()) ;
+  }
+
+  Future<String> getImageURL() async {
+    final ref = FirebaseStorage.instance.ref().child('profile_images/profie_photo.jpg');
+    // no need of the file extension, the name will do fine.
+    var url = await ref.getDownloadURL();
+    return url;
+
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -26,6 +45,7 @@ class SideDrawer extends StatelessWidget {
     final width = size.width;
     double _drawerIconSize = 24;
     double _drawerFontSize = 17;
+    final AuthServices _authService = AuthServices();
 
     return Drawer(
       child: Container(
@@ -63,65 +83,89 @@ class SideDrawer extends StatelessWidget {
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        CircleAvatar(
-                          radius: 40,
-                          backgroundImage: NetworkImage(
-                              'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80'),
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "User Name",
-                              style: TextStyle(
-                                  fontSize: 25,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Text(
-                              "emailid@gmail.com",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white70,
+                    child: StreamBuilder<Object>(
+                      stream: readUsers(),
+                      builder: (context, snapshot) {
+                        if(snapshot.hasData){
+                          final users = snapshot.data as List<UserModel>;
+                          UserModel? user;
+                          if (users.length > 0){
+                            user = users.firstWhere((user) => user.uid == Provider.of<User?>(context)?.uid);
+                          }
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              /// Uncomment FutureBuilder if you want image from firebase
+                              // FutureBuilder(
+                              //   future: getImageURL(),
+                              //   builder: (context, snapshot) {
+                              //     if(snapshot.hasData) {
+                              //       return CircleAvatar(
+                              //         radius: 40,
+                              //         backgroundImage: NetworkImage(snapshot.data as String), /// Uses image from firebase
+                              //       );
+                              //     } else if (snapshot.hasError){
+                              //       return Text('Something went wrong');
+                              //     } else {
+                              //       return CircleAvatar(
+                              //         radius: 40,
+                              //         child: Center(
+                              //           child: CircularProgressIndicator(),
+                              //         ),
+                              //       );
+                              //     }
+                              //   }
+                              // ),
+                              /// Uncomment this if you want profile image icon
+                              CircleAvatar(
+                                radius: 40,
+                                child: Icon(
+                                  Icons.person,
+                                  size: 45,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    user?.name ?? "User Name",
+                                    style: TextStyle(
+                                        fontSize: 25,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Text(
+                                    user?.email ?? "emailid@gmail.com",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        } else if(snapshot.hasError){
+                          print(snapshot.error);
+                          return Text('Something went wrong');
+                        } else {
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                      }
                     ),
                   ),
                 ),
               ),
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.aod_rounded,
-                size: _drawerIconSize,
-                color: Colors.white70,
-              ),
-              title: Text(
-                'Generalized UI',
-                style: TextStyle(
-                  fontSize: _drawerFontSize,
-                  color: Colors.white70,
-                ),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => GeneralizedUIPage()),
-                );
-              },
             ),
             ListTile(
               leading: Icon(
@@ -130,7 +174,8 @@ class SideDrawer extends StatelessWidget {
                 color: Colors.white70,
               ),
               title: Text(
-                'Realtime Monitoring',
+                // 'Realtime Monitoring',
+                'Warehouse Management (Realtime Monitoring)',
                 style: TextStyle(
                   fontSize: _drawerFontSize,
                   color: Colors.white70,
@@ -145,12 +190,35 @@ class SideDrawer extends StatelessWidget {
             ),
             ListTile(
               leading: Icon(
+                Icons.aod_rounded,
+                size: _drawerIconSize,
+                color: Colors.white70,
+              ),
+              title: Text(
+                // 'Generalized UI',
+                'Food Quality Prediction\n(Environment & Time)',
+                style: TextStyle(
+                  fontSize: _drawerFontSize,
+                  color: Colors.white70,
+                ),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => GeneralizedUIPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(
                 Icons.add_to_queue_rounded,
                 size: _drawerIconSize,
                 color: Colors.white70,
               ),
               title: Text(
-                'Manage your stock',
+                // 'Manage your stock',
+                '''Shelf Life Prediction \n(Applications & Environment)''',
+                maxLines: 2,
                 style: TextStyle(
                   fontSize: _drawerFontSize,
                   color: Colors.white70,
@@ -241,146 +309,22 @@ class SideDrawer extends StatelessWidget {
             ),
             ListTile(
               leading: Icon(
-                Icons.account_circle_rounded,
-                size: _drawerIconSize,
-                color: Colors.white70,
-              ),
-              title: Text(
-                'Test',
-                style: TextStyle(
-                  fontSize: _drawerFontSize,
-                  color: Colors.white70,),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TestPage()),
-                );
-              },
-            ),
-            SizedBox(
-              height: 400,
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.screen_lock_landscape_rounded,
-                size: _drawerIconSize,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              title: Text(
-                'Splash Screen',
-                style: TextStyle(
-                    fontSize: 17, color: Theme.of(context).colorScheme.secondary),
-              ),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            SplashScreen(title: "Splash Screen")));
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.login_rounded,
-                  size: _drawerIconSize, color: Theme.of(context).colorScheme.secondary),
-              title: Text(
-                'Login Page',
-                style: TextStyle(
-                    fontSize: _drawerFontSize,
-                    color: Theme.of(context).colorScheme.secondary),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                );
-              },
-            ),
-            Divider(
-              color: Theme.of(context).primaryColor,
-              height: 1,
-            ),
-            ListTile(
-              leading: Icon(Icons.person_add_alt_1,
-                  size: _drawerIconSize, color: Theme.of(context).colorScheme.secondary),
-              title: Text(
-                'Registration Page',
-                style: TextStyle(
-                    fontSize: _drawerFontSize,
-                    color: Theme.of(context).colorScheme.secondary),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => RegistrationPage()),
-                );
-              },
-            ),
-            Divider(
-              color: Theme.of(context).primaryColor,
-              height: 1,
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.password_rounded,
-                size: _drawerIconSize,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              title: Text(
-                'Forgot Password Page',
-                style: TextStyle(
-                    fontSize: _drawerFontSize,
-                    color: Theme.of(context).colorScheme.secondary),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
-                );
-              },
-            ),
-            Divider(
-              color: Theme.of(context).primaryColor,
-              height: 1,
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.verified_user_sharp,
-                size: _drawerIconSize,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              title: Text(
-                'Verification Page',
-                style: TextStyle(
-                    fontSize: _drawerFontSize,
-                    color: Theme.of(context).colorScheme.secondary),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ForgotPasswordVerificationPage()),
-                );
-              },
-            ),
-            Divider(
-              color: Theme.of(context).primaryColor,
-              height: 1,
-            ),
-            ListTile(
-              leading: Icon(
                 Icons.logout_rounded,
                 size: _drawerIconSize,
-                color: Theme.of(context).colorScheme.secondary,
+                color: Colors.white70,
               ),
               title: Text(
                 'Logout',
                 style: TextStyle(
                     fontSize: _drawerFontSize,
-                    color: Theme.of(context).colorScheme.secondary),
+                    color: Colors.white70,
+                ),
               ),
-              onTap: () {
-                SystemNavigator.pop();
+              onTap: () async{
+                await _authService.signOut();
+                Navigator.pop(context);
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => OnBoardingPage()));
               },
             ),
           ],

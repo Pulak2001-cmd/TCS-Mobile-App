@@ -1,25 +1,12 @@
 import 'dart:convert';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_login_ui/models/DHT22_sensor_data_model.dart';
 import 'package:flutter_login_ui/models/potato_data_model.dart';
 import 'package:flutter_login_ui/common/firebase_storage.dart';
-import 'package:flutter_login_ui/pages/realtime_monitoring_screens/line_chart_widgets/test/test2_line_chart_widget.dart';
-import 'package:flutter_login_ui/pages/realtime_monitoring_screens/line_chart_widgets/test/prediction_line_chat_widget.dart';
-import 'package:flutter_login_ui/pages/realtime_monitoring_screens/line_chart_widgets/test_line_chart_widget.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:hexcolor/hexcolor.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:scidart/numdart.dart';
-import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_database/firebase_database.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import '../common/utility_functions.dart';
 
 class TestPage extends StatefulWidget {
@@ -38,6 +25,7 @@ class _TestPageState extends State<TestPage> {
 
   Future uploadImage() async{
     final request = http.MultipartRequest("POST", Uri.parse('https://tcs-flask-api.herokuapp.com/upload'));
+    // final request = http.MultipartRequest("POST", Uri.parse('https://165b-20-2-137-137.ap.ngrok.io/manage-your-stock'));
     final headers = {
       "Content-type":"multipart/form-data"
     };
@@ -51,75 +39,12 @@ class _TestPageState extends State<TestPage> {
     http.Response res = await http.Response.fromStream(response);
     var resJSON = await jsonDecode(jsonEncode(res.body));
     print(resJSON);
-    setState((){});
+    setState((){ textvalue = resJSON;});
   }
 
-  Future<void> _refresh() async {
-    setState((){});
-    return Future.delayed(Duration(seconds: 1));
-  }
-
-  // List<double> avgTemperatureOfDay(List<DHT22SensorData> sensorData){
-  //   List<double> avgTemperatureByDayList = [];
-  //   int noOfPoints = 0;
-  //   int prevDay = sensorData.first.timestamp.day;
-  //   double avgTemperature = sensorData.first.temperatureReading;
-  //   sensorData.asMap().forEach((i,dataPoint) {
-  //     if(dataPoint.timestamp.day != prevDay){
-  //       noOfPoints = 0;
-  //       avgTemperatureByDayList.add(double.parse(avgTemperature.toStringAsFixed(1)));
-  //       avgTemperature = 0;
-  //       prevDay = dataPoint.timestamp.day;
-  //     }
-  //     avgTemperature = avgTemperature*noOfPoints + dataPoint.temperatureReading;
-  //     avgTemperature = avgTemperature/ (noOfPoints+1);
-  //     noOfPoints++;
-  //   });
-  //   avgTemperatureByDayList.add(double.parse(avgTemperature.toStringAsFixed(1)));
-  //   return avgTemperatureByDayList;
-  // }
-  // List<double> avgHumidityOfDay(List<DHT22SensorData> sensorData){
-  //   List<double> avgHumidityOfDayList = [];
-  //   int noOfPoints = 0;
-  //   int prevDay = sensorData.first.timestamp.day;
-  //   double avgHumidity = sensorData.first.humidityReading;
-  //   sensorData.asMap().forEach((i,dataPoint) {
-  //     if(dataPoint.timestamp.day != prevDay){
-  //       noOfPoints = 0;
-  //       avgHumidityOfDayList.add(double.parse(avgHumidity.toStringAsFixed(1)));
-  //       avgHumidity = 0;
-  //       prevDay = dataPoint.timestamp.day;
-  //     }
-  //     avgHumidity = avgHumidity*noOfPoints + dataPoint.humidityReading;
-  //     avgHumidity = avgHumidity/ (noOfPoints+1);
-  //     noOfPoints++;
-  //   });
-  //   avgHumidityOfDayList.add(double.parse(avgHumidity.toStringAsFixed(1)));
-  //   return avgHumidityOfDayList;
-  // }
-
-  // final DatabaseReference dataRef =
-  // FirebaseDatabase.instance.ref().child('dummy-data');
-
-  // Future getJSON(DatabaseReference dataRef) async{
-  //   List<DHT22SensorData> sensorData = [];
-  //   List<FlSpot> temperatureLineChartData = [];
-  //   List<FlSpot> humidityLineChartData = [];
-  //   DataSnapshot data = await dataRef.get();
-  //   List<DataSnapshot> dataList = data.children.toList();
-  //   dataList.forEach((reading) {
-  //     DHT22SensorData temp = DHT22SensorData.fromJson(reading.value as Map<dynamic,dynamic>);
-  //     temp.timestamp = DateTime.fromMillisecondsSinceEpoch( int.parse(reading.key!) * 1000);
-  //     sensorData.add(temp);
-  //     temperatureLineChartData.add(FlSpot(double.parse(reading.key!), temp.temperatureReading));
-  //     humidityLineChartData.add(FlSpot(double.parse(reading.key!), temp.humidityReading));
-  //   });
-  //   print(avgTemperatureOfDay(sensorData));
-  //   print(avgHumidityOfDay(sensorData));
-  // }
-
-
-  ////////////////////////////////////////////////////////////////////////////
+  /// ////////////////////////////////////////////////////////////////////// ///
+  /// Function that gives average T and RH for provided time (in hours) /// ///
+  /// ///////////////////////////////////////////////////////////////////// ///
   List<Map<String, double>> calculateAvgTemperatureAndHumidityByHours(List<DHT22SensorData> sensorData ,{double hours =24}){
     List<Map<String, double>> avgTemperatureAndHumidityByHoursMaps = [];
     Map<String, double> tempMap = {};
@@ -156,6 +81,7 @@ class _TestPageState extends State<TestPage> {
     }
     return avgTemperatureAndHumidityByHoursMaps;
   }
+
   List<double> avgHumidityOfDay(List<DHT22SensorData> sensorData){
     List<double> avgHumidityOfDayList = [];
     int noOfPoints = 0;
@@ -246,6 +172,28 @@ class _TestPageState extends State<TestPage> {
     return pastPredictionsLineChartData;
   }
 
+  Future<List<FlSpot>> getSensorReadings(DatabaseReference dataRef) async{
+    List<FlSpot> sensorReadings = [];
+    List<DHT22SensorData> sensorData = [];
+    DataSnapshot data = await dataRef.get();
+    List<DataSnapshot> dataList = data.children.toList();
+    dataList.forEach((reading) {
+      if(DHT22SensorData.checkValidValue(reading.value as Map<dynamic,dynamic>)){
+        DHT22SensorData temp = DHT22SensorData.fromJson(reading.value as Map<dynamic,dynamic>);
+        temp.timestamp = DateTime.fromMillisecondsSinceEpoch( int.parse(reading.key!) * 1000);
+        sensorData.add(temp);
+      }
+
+    });
+    List<Map<String, double>> avgTemperatureByHoursMaps = calculateAvgTemperatureAndHumidityByHours(sensorData, hours: 6);
+    avgTemperatureByHoursMaps.forEach((dataPoint) {
+      sensorReadings.add(FlSpot(dataPoint['index']!, dataPoint['avgT']!));
+    });
+    print(sensorReadings);
+
+    return sensorReadings;
+  }
+
   Future<List<List<FlSpot>>> getJSON(DatabaseReference dataRef, String parameter, {int noOfDigitsAfterDecimal = 1}) async{
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -309,10 +257,11 @@ class _TestPageState extends State<TestPage> {
   }
   ////////////////////////////////////////////////////////////////////////////
 
+  String textvalue = '';
+
 
   @override
   Widget build(BuildContext context) {
-    final Storage storage = Storage();
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -337,75 +286,7 @@ class _TestPageState extends State<TestPage> {
         ),
         body: SafeArea(
           child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Text( DateFormat('dd/MM/yyyy, HH:mm').format(DateTime.fromMillisecondsSinceEpoch(1655368249308))), //Reading Date form epoch timestamp
-                // ElevatedButton(onPressed: () async {
-                //   getJSON(dataRef);
-                // }, child: Text('read')),
-                Container(
-                  clipBehavior: Clip.antiAlias,
-                  margin: EdgeInsets.fromLTRB(0,0,28,0),
-                  padding: EdgeInsets.fromLTRB(16,16,16,16),
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                  ),
-                  width: double.infinity,
-                  height: 250,
-                  child: Column(
-                    children: [
-                      Expanded(child: Stack(
-                        children: [
-                          Test2LineChartWidget(),
-                        ],
-                      ),),
-                      Text(
-                        "           Time in MM:SS",
-                        style : TextStyle(
-                          color: Color(0xff75729e),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      )
-                    ],
-                  ),
-      
-                ),
-                Container(
-                  clipBehavior: Clip.none,
-                  margin: EdgeInsets.fromLTRB(0,0,28,0),
-                  padding: EdgeInsets.fromLTRB(16,16,16,16),
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                  ),
-                  width: double.infinity,
-                  height: 250,
-                  child: Column(
-                    children: [
-                      Expanded(child: Stack(
-                        children: [
-                          PredictionLineChartWidget(parameter: 'Starch', digitsAfterDecimal: 1,)
-                        ],
-                      ),),
-                      Text(
-                        "           Time in days",
-                        style : TextStyle(
-                          color: Color(0xff75729e),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      )
-                    ],
-                  ),
-
-                ),
-                ElevatedButton(onPressed: () async{
-                  List<DHT22SensorData> sensorData = await getSensorDataFromFirebase(dataRef3);
-                  List<Map<String, double>> avgTemperatureByHoursMaps = calculateAvgTemperatureAndHumidityByHours(sensorData, hours: 6);
-                  print(avgTemperatureByHoursMaps);
-                }, child: Text('press'))
-              ],
-            ),
+            child: Center(child: Text(textvalue, style: TextStyle(color: Colors.white,),)),
           ),
         ),
         floatingActionButton: Row(
@@ -422,35 +303,45 @@ class _TestPageState extends State<TestPage> {
                 print('Done');
               },
               child: Icon(Icons.download),
-            ),
-            SizedBox(width: 16,),
-            ElevatedButton(
-              onPressed: () async{
-                final pdf = pw.Document();
-                final List headers = ['SNo.','Time (days)',' Reducing Sugar'];
-                final data = [
-                  [1, 0, 0.001],
-                  [2, 10, 0.002],
-                  [3, 20, 0.0024],
-                ];
-
-                pdf.addPage(pw.Page(
-                    pageFormat: PdfPageFormat.a4,
-                    build: (pw.Context context) {
-                      return pw.Table.fromTextArray(
-                          headers: headers,
-                          data: data); // Center
-                    })); // Page
-                final output = await getTemporaryDirectory();
-                DateTime date = DateTime.now();
-                final file = File("/storage/emulated/0/Download/example.pdf");
-                await file.writeAsBytes(await pdf.save());
-                print(output.path.runtimeType);
-                print(await getExternalStorageDirectory());
-
-              },
-              child: Text('Save PDF'),
-            ),
+             ),
+            // SizedBox(width: 16,),
+            // ElevatedButton(
+            //   onPressed: () async{
+            //     final pdf = pw.Document();
+            //     final List headers = ['SNo.','Time (days)',' Reducing Sugar'];
+            //     final data = [
+            //       [1, 0, 0.001],
+            //       [2, 10, 0.002],
+            //       [3, 20, 0.0024],
+            //     ];
+            //
+            //     pdf.addPage(pw.Page(
+            //         pageFormat: PdfPageFormat.a4,
+            //         build: (pw.Context context) {
+            //           return pw.Table.fromTextArray(
+            //               headers: headers,
+            //               data: data); // Center
+            //         })); // Page
+            //     final output = await getTemporaryDirectory();
+            //     DateTime date = DateTime.now();
+            //     final file = File("/storage/emulated/0/Download/example.pdf");
+            //     await file.writeAsBytes(await pdf.save());
+            //     print(output.path.runtimeType);
+            //     print(await getExternalStorageDirectory());
+            //
+            //   },
+            //   child: Text('Save PDF'),
+            // ),
+            // SizedBox(width: 16,),
+            // ElevatedButton(
+            //   onPressed: () async{
+            //
+            //     await Provider.of<UserProvider>(context,listen: false).init();
+            //     UserModel? user = Provider.of<UserProvider>(context,listen: false).user;
+            //     print('test page: ${user?.name}');
+            //   },
+            //   child: Text('User data'),
+            // )
           ],
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,

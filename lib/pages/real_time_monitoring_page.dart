@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_login_ui/pages/realtime_monitoring_screens/quality_of_lots_screen.dart';
+import 'package:flutter_login_ui/pages/realtime_monitoring_screens/quality_of_lots_screen_hardcoded.dart';
 import 'package:flutter_login_ui/pages/realtime_monitoring_screens/variantions_in_physical_parameters_screen.dart';
 import 'package:flutter_login_ui/pages/realtime_monitoring_screens/current_conditions_screen.dart';
 import 'package:flutter_login_ui/pages/realtime_monitoring_screens/variations_in_predicted_parameters_screen.dart';
@@ -13,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../widgets/bottom_modal_sheet.dart';
+import '../widgets/drawer_widget.dart';
 
 
 
@@ -35,7 +37,8 @@ class _RealTimeMonitoringPageState extends State<RealTimeMonitoringPage> {
     //Screen 3
     VariationsInPredictedParametersScreen(),
     //Screen 4
-    QualityOfLotsScreen(),
+    QualityOfLotsScreenHardcoded(), // We had hardcoded results for demonstration purposes
+    // QualityOfLotsScreen(), /// BEWARE! runs image based models developed which show randoms results
   ];
 
   //index for Carousel
@@ -61,10 +64,13 @@ class _RealTimeMonitoringPageState extends State<RealTimeMonitoringPage> {
         extendBody: true,
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text('Realtime monitoring',
+          title: Text(
+            // 'Realtime monitoring',
+            "Warehouse Management",
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontSize: 17,
             ),),
           elevation: 0,
           backgroundColor: Colors.transparent,
@@ -97,6 +103,7 @@ class _RealTimeMonitoringPageState extends State<RealTimeMonitoringPage> {
             )
           ],
         ),
+        drawer: SideDrawer(),
         body: SafeArea(
           child: IndexedStack(
             index: currentIndex,

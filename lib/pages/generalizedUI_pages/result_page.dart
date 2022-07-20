@@ -31,8 +31,6 @@ class ResultPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('result page ${selectedVariety?.variety}');
-    print('result page ${selectedVariety?.varietyType}');
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -124,12 +122,11 @@ class ResultPage extends StatelessWidget {
     );
   }
 
-  Widget buildReducingSugarResults(){
+  Widget buildReducingSugarResults() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        isSelected0 ? buildResultCard('Predicted RS value over the given storage time:', '${result?.toStringAsFixed(2)} %w/FW', SizedBox()): SizedBox(),
-        isSelected1 ? buildResultCard('RS trend at a particular T for a given variety:', '', Container(
+        isSelected1 ? buildResultCard('RS trend at ${T} °C for ${selectedVariety?.variety}:', '', Container(
           // clipBehavior: Clip.antiAlias,
           padding: EdgeInsets.fromLTRB(2,2,16,2),
           decoration: BoxDecoration(
@@ -140,8 +137,9 @@ class ResultPage extends StatelessWidget {
           child: Column(
             children: [
               Expanded(child: RSTrendTLineChartWidget(selectedVariety: selectedVariety!, currentRS: currentRS ?? -1, T: T ?? -1,)),
+              SizedBox(height: 8,),
               Text(
-                '(time in days)',
+                'time (days)',
                 style:TextStyle(
                   color: Color(0xff72719b),
                 ) ,
@@ -150,7 +148,8 @@ class ResultPage extends StatelessWidget {
           ),
 
         )) : SizedBox(),
-        isSelected2 ? buildResultCard('RS trend for a given variety (%):', '', buildEffectOfTGraph(RSTrendVarietyLineChartWidget(selectedVariety: selectedVariety!, currentRS: currentRS,), isReducingSugar: true)) : SizedBox(),
+        isSelected2 ? buildResultCard('RS trend for ${selectedVariety?.variety == 'None'? selectedVariety?.varietyType: selectedVariety?.variety} (%):', '', buildEffectOfTGraph(RSTrendVarietyLineChartWidget(selectedVariety: selectedVariety!, currentRS: currentRS,), isReducingSugar: true)) : SizedBox(),
+        isSelected0 ? buildResultCard('Predicted RS value over the given storage time ($storageTime days):', '${result?.toStringAsFixed(2)} %w/FW', SizedBox()): SizedBox(),
         buildDownloadButton(),
         SizedBox(height: 16,),
       ],
@@ -446,7 +445,7 @@ class ResultPage extends StatelessWidget {
                 fontSize: 20
             ),),
           SizedBox(
-            height: 16,
+            height: 26,
           ),
           (result == '') ? SizedBox() : Text(result,
             style: TextStyle(

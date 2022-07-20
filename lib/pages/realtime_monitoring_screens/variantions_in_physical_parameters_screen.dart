@@ -1,11 +1,12 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_login_ui/pages/realtime_monitoring_screens/line_chart_widgets/variation_in_physical_parameters/co2_conc_line_chart.dart';
-import 'package:flutter_login_ui/pages/realtime_monitoring_screens/line_chart_widgets/variation_in_physical_parameters/ethylene_conc_line_chart.dart';
-import 'package:flutter_login_ui/pages/realtime_monitoring_screens/line_chart_widgets/variation_in_physical_parameters/temperature_line_chart.dart';
-import 'package:flutter_login_ui/pages/realtime_monitoring_screens/line_chart_widgets/variation_in_physical_parameters/relative_humidity_line_chart.dart';
+import 'package:flutter_login_ui/widgets/physical_parameters_line_chart.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+
+import '../../providers/current_dashboard_provider.dart';
 class VariationsInPhysicalParametersScreen extends StatefulWidget {
   const VariationsInPhysicalParametersScreen({Key? key}) : super(key: key);
 
@@ -22,9 +23,12 @@ class _VariationsInPhysicalParametersScreenState extends State<VariationsInPhysi
   final urls = [
     '1','2','3','4'
   ];
+  double currentDashboard = 1;
 
   @override
   Widget build(BuildContext context) {
+    DatabaseReference dataRef = Provider.of<DashboardProvider>(context).dataRef;
+    double currentDashboard = Provider.of<DashboardProvider>(context).currentDashboard;
     return Container(
       color: Colors.transparent,
       child: Scaffold(
@@ -34,6 +38,83 @@ class _VariationsInPhysicalParametersScreenState extends State<VariationsInPhysi
 
           child: Column(
             children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                          style: currentDashboard == 1 ? ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(Colors.white70),
+                            splashFactory: NoSplash.splashFactory,
+                            elevation: MaterialStateProperty.all(0.0),
+                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                                side: BorderSide(color: Colors.white70),
+                              ),
+                            ),
+                          ) :ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(Colors.transparent),
+                            splashFactory: NoSplash.splashFactory,
+                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                                side: BorderSide(color: Colors.white70),
+                              ),
+                            ),
+                            elevation: MaterialStateProperty.all(0.0),
+                          ),
+                          onPressed: (){
+                            Provider.of<DashboardProvider>(context, listen: false).setDashboard(1);
+                            setState((){});
+                          },
+                          child: Text(
+                            'System 1',
+                            style: TextStyle(
+                                color: Colors.white70
+                            ),)),
+                    ),
+                    SizedBox(width: 8,),
+                    Expanded(
+                      child: ElevatedButton(
+                          style: currentDashboard == 2 ? ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(Colors.white70),
+                            splashFactory: NoSplash.splashFactory,
+                            elevation: MaterialStateProperty.all(0.0),
+                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                                side: BorderSide(color: Colors.white70),
+                              ),
+                            ),
+                          ) :ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(Colors.transparent),
+                            splashFactory: NoSplash.splashFactory,
+                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                                side: BorderSide(color: Colors.white70),
+                              ),
+                            ),
+                            elevation: MaterialStateProperty.all(0.0),
+                          ),
+                          onPressed: (){
+                            Provider.of<DashboardProvider>(context, listen: false).setDashboard(2);
+                            setState((){});
+                          },
+                          child: Text(
+                            'System 2',
+                            style: TextStyle(
+                              color: Colors.white70,
+                            ),
+                          )),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 8,),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text('Variations in storage conditions',
@@ -50,41 +131,41 @@ class _VariationsInPhysicalParametersScreenState extends State<VariationsInPhysi
                   child: Column(children:[
                     Divider(),
                     Text(
-                        'Temperature',
+                        'Temperature (°C)',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,
                           fontWeight: FontWeight.w500,
                         ),
                     ),
-                    buildGraph(LineChartWidget()),
+                    buildGraph(LineChartWidget(parameter: 'temperature',dataRef: dataRef,)),
                     Text(
-                      'Relative Humidity',
+                      'Relative Humidity (%)',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    buildGraph(RelativeHumidityLineChartWidget()),
+                    buildGraph(LineChartWidget(parameter: 'relative humidity',dataRef: dataRef,)),
                     Text(
-                      'Ethylene Conc.',
+                      'Ethylene Conc. (ppm)',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    buildGraph(EthyleneConcLineChartWidget()),
+                    buildGraph(LineChartWidget(parameter: 'ethylene conc',dataRef: dataRef,)),
                     Text(
-                      'CO2 Conc.',
+                      'CO2 Conc. (ppm)',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    buildGraph(CO2ConcLineChartWidget()),
+                    buildGraph(LineChartWidget(parameter: 'co2 conc',dataRef: dataRef,)),
                   ]),
                 ),
               ),
@@ -110,7 +191,7 @@ class _VariationsInPhysicalParametersScreenState extends State<VariationsInPhysi
         children: [
           Expanded(child: lineChartWidget),
           Text(
-            "           Time in days",
+            "           Time (days)",
             style : TextStyle(
               color: Color(0xff75729e),
               fontWeight: FontWeight.bold,

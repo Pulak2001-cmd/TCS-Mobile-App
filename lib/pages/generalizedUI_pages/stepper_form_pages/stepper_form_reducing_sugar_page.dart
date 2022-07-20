@@ -153,12 +153,11 @@ class _StepperFormReducingSugarPageState extends State<StepperFormReducingSugarP
 
 
                 if(isLastStep || (!isSelected0 && !isSelected1 && currentStep == 1))  {
-                  print(selectedVariety.variety);
                   double? result;
-                  (!isSelected0 && !isSelected1 && currentStep == 1) ? result = null: result = await selectedVariety.RS_day(storageTime, storageTemp, currentRS);
+                  isSelected0 ? result = await selectedVariety.RS_day(storageTime, storageTemp, currentRS) : result = null;
 
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ResultPage(selectedParameter: widget.selectedParameter,result: result, isSelected0: isSelected0, isSelected1: isSelected1, isSelected2: isSelected2,selectedVariety: selectedVariety, currentRS: currentRS , T: storageTemp,)));
-                  //send data to server
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ResultPage(selectedParameter: widget.selectedParameter,result: result, isSelected0: isSelected0, isSelected1: isSelected1, isSelected2: isSelected2,selectedVariety: selectedVariety, currentRS: currentRS , T: storageTemp, storageTime: storageTime,)));
+
                 } else{
                   setState(() => currentStep++ );
                 }
@@ -336,7 +335,6 @@ class _StepperFormReducingSugarPageState extends State<StepperFormReducingSugarP
                       selectedVariety.variety = dropdownValue;
                       await selectedVariety.initializeWithAllDayData(dropdownValue);
                       setState(()  {
-                        print(selectedVariety.variety);
                       });
                     },
                     items: varietyList
@@ -370,7 +368,6 @@ class _StepperFormReducingSugarPageState extends State<StepperFormReducingSugarP
                     onChanged: (String? newValue) async{
 
                       dropdownValue2 = newValue!;
-                      print(dropdownValue2);
                       await selectedVariety.initializeWithAllDayData(dropdownValue,selectedVarietyType: dropdownValue2);
                       setState(()  {
                       });

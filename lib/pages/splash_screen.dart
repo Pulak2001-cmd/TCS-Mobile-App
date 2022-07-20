@@ -56,8 +56,17 @@ class _SplashScreenState extends State<SplashScreen> {
             height: 140.0,
             width: 140.0,
             child: Center(
-              child: ClipOval(
-                child: Image.asset('assets/images/tcs_logo_2.png'), //put your logo here
+              child: Column(
+                children: [
+                  Image.asset('assets/images/tcs_logo_2.png'),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Text(
+                      'Food Quality App',
+                    style: Theme.of(context).primaryTextTheme.caption,
+                  ),
+                ],
               ),
             ),
             // decoration: BoxDecoration(

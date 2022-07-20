@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_login_ui/models/potato_data_model.dart';
 import 'package:flutter_login_ui/providers/alert_provider.dart';
+import 'package:flutter_login_ui/providers/current_dashboard_provider.dart';
 import 'package:flutter_login_ui/providers/temp_crop_list_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +12,10 @@ import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:http/http.dart' as http;
 import '../../models/user_model.dart';
+// import '../../providers/delete_this_useless_provider.dart';
+import 'dart:async';
+
+import '../../providers/quality_of_lots_hardcoded_provider.dart';
 
 class CurrentConditionsScreen extends StatefulWidget {
   const CurrentConditionsScreen({Key? key}) : super(key: key);
@@ -20,9 +26,33 @@ class CurrentConditionsScreen extends StatefulWidget {
 
 class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
 
+  String timestamp = '';
+  Map<dynamic,dynamic> latestSensorReading = {};
+  int? epochTimestamp;
+  StreamSubscription<DatabaseEvent>? sensorDataSubscription;
+
+
+  void getLatestTimestamp(DatabaseReference dataRef) {
+    int latestTimestamp = 0;
+     sensorDataSubscription = dataRef.onValue.listen((event) {
+      Map<dynamic,dynamic> dataPoints = event.snapshot.value as Map<dynamic,dynamic>;
+      dataPoints.forEach((key, value) {
+        if(latestTimestamp < double.parse(key)){
+          latestTimestamp = double.parse(key).toInt();
+        }
+      });
+      setState((){
+        epochTimestamp = latestTimestamp;
+        timestamp = DateFormat('d MMM, yy hh:mm aaa').format(DateTime.fromMillisecondsSinceEpoch(latestTimestamp*1000));
+        latestSensorReading = dataPoints[latestTimestamp.toString()];
+      });
+    });
+
+  }
+
   //Working stream
-  Stream<List<User>> readUsers() {
-    return FirebaseFirestore.instance.collection('Users').snapshots().map((snapshot) => snapshot.docs.map((doc) => User.fromJson(doc.data())).toList()) ;
+  Stream<List<UserModel>> readUsers() {
+    return FirebaseFirestore.instance.collection('Users').snapshots().map((snapshot) => snapshot.docs.map((doc) => UserModel.fromJson(doc.data())).toList()) ;
   }
 
   //Utility function to calculate time in days between 2 given dates
@@ -30,22 +60,124 @@ class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
     return double.parse((currentDate.difference(startDate).inHours/24).toStringAsFixed(2));
   }
 
+  Future toggleDashboard(double dashboard, DatabaseReference dataRef) async{
+    sensorDataSubscription?.cancel();
+    Provider.of<DashboardProvider>(context, listen: false).setDashboard(dashboard);
+    setState((){
+      getLatestTimestamp(dataRef);
+    });
+  }
+
   //index for Carousel
   int activeIndex0 = 0;
-  Color textColor = Colors.white70;
+  Color textColor = Colors.white;
   DateTime currentDate = DateTime.now();
 
   @override
+  void initState() {
+    super.initState();
+    getLatestTimestamp(FirebaseDatabase.instance.ref().child('test'));
+  }
+  @override
+  void dispose() {
+    sensorDataSubscription?.cancel();
+    print('Current conditions disposed');
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    DatabaseReference dataRef = Provider.of<DashboardProvider>(context).dataRef;
+    double currentDashboard = Provider.of<DashboardProvider>(context).currentDashboard;
+
     return Container(
       color: Colors.transparent,
       child: Scaffold(
         extendBodyBehindAppBar: true,
         backgroundColor: Colors.transparent,
         body: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0,),
           child: Column(
             children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                        style: currentDashboard == 1 ? ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(Colors.white70),
+                          splashFactory: NoSplash.splashFactory,
+                          elevation: MaterialStateProperty.all(0.0),
+                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.0),
+                              side: BorderSide(color: Colors.white70),
+                            ),
+                          ),
+                        ) :ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(Colors.transparent),
+                          splashFactory: NoSplash.splashFactory,
+                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.0),
+                              side: BorderSide(color: Colors.white70),
+                            ),
+                          ),
+                          elevation: MaterialStateProperty.all(0.0),
+                        ),
+                        onPressed: () async {
+                          await toggleDashboard(1, dataRef);
+                        },
+                        child: Text(
+                            'System 1',
+                        style: TextStyle(
+                          color: Colors.white70
+                        ),)),
+                  ),
+                  SizedBox(width: 8,),
+                  Expanded(
+                    child: ElevatedButton(
+                        style: currentDashboard == 2 ? ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(Colors.white70),
+                          splashFactory: NoSplash.splashFactory,
+                          elevation: MaterialStateProperty.all(0.0),
+                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.0),
+                              side: BorderSide(color: Colors.white70),
+                            ),
+                          ),
+                        ) :ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(Colors.transparent),
+                          splashFactory: NoSplash.splashFactory,
+                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.0),
+                              side: BorderSide(color: Colors.white70),
+                            ),
+                          ),
+                          elevation: MaterialStateProperty.all(0.0),
+                        ),
+                        onPressed: () async {
+                          await toggleDashboard(2, dataRef);
+                        },
+                        child: Text(
+                            'System 2',
+                          style: TextStyle(
+                            color: Colors.white70,
+                          ),
+                        )),
+                  ),
+                ],
+              ),
+              SizedBox(height: 8,),
+              StreamBuilder<Object>(
+                stream: null,
+                builder: (context, snapshot) {
+                  return Text('Last data on: $timestamp', style: TextStyle(color: Colors.white70),);
+                }
+              ),
+              SizedBox(height: 8,),
               Expanded(
                 child: Container(
                   clipBehavior: Clip.antiAlias,
@@ -74,41 +206,37 @@ class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                             ),
                           ),
                       ),
                       Expanded(
-                        child: StreamBuilder<List<User>>(
-                          stream: readUsers(),
-                          builder: (context, snapshot) {
-                            if(snapshot.hasData){
-                              final users = snapshot.data as List<User>;
+                          child: StreamBuilder<List<double>>(
+                            stream: null,
+                            builder: (context, snapshot) {
+                                /// checking the latest sensor readings for alerts
+                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                  Provider.of<AlertProvider>(context,listen: false).checkForAlerts(context, latestSensorReading);
+                                });
+                                double temperatureReading = latestSensorReading['temperature'].runtimeType == int ? latestSensorReading['temperature'].toDouble() : latestSensorReading['temperature'] ?? 0;
+                                double humidityReading = latestSensorReading['humidity'].runtimeType == int ? latestSensorReading['humidity'].toDouble() : latestSensorReading['humidity'] ?? 0;
+                                double ethyleneConcReading = latestSensorReading['etheleneConc'].runtimeType == int ? latestSensorReading['etheleneConc'].toDouble() : latestSensorReading['etheleneConc'] ?? 0;
+                                double co2ConcReading = latestSensorReading['CO2Conc'].runtimeType == int ? latestSensorReading['CO2Conc'].toDouble() : latestSensorReading['CO2Conc'] ?? 0;
 
-                              User user = users[0];
-                              //Adding alerts
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                Provider.of<AlertProvider>(context,listen: false).checkForAlerts(context, user);
-                              });
 
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  buildText('Temperature: ${user.temperature} °C', user),
-                                  buildText('Relative Humidity: ${user.relativeHumidity} %', user),
-                                  buildText('Ethylene Conc: ${user.ethyleneConc}ppm', user),
-                                  buildText('CO2 Conc: ${user.co2Conc}ppm', user),
-                                ],
-                              );
-                            } else if(snapshot.hasError){
-                              return Text('Something went wrong');
-                            } else {
-                              return Center(child: CircularProgressIndicator(),);
-                            }
-                          },
-                        )
+                                return Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    buildText('Temperature: ${temperatureReading.toStringAsFixed(1)} °C') ,
+                                    buildText('Relative Humidity: ${humidityReading.toStringAsFixed(1)} %') ,
+                                    buildText('Ethylene Conc: ${ethyleneConcReading.toStringAsFixed(1)} ppm') ,
+                                    buildText('CO2 Conc: ${co2ConcReading.toStringAsFixed(1)} ppm') ,
+                                  ],
+                                );
+                            },
+                          )
                       ),
                     ],
                   )
@@ -143,23 +271,26 @@ class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
                           ),
                         ),
                         Expanded(
-                          child: StreamBuilder<List<User>>(
+                          child: StreamBuilder<List<UserModel>>(
                             stream: readUsers(),
                             builder: (context, snapshot) {
                             if(snapshot.hasData){
-                              final users = snapshot.data as List<User>;
-
-                              User user = users[0];
-                              double initialWeight = (user.initialWeight?.toDouble())!;
-                              double transpirationRate = PotatoData.getTranspirationRate(user.temperature, user.relativeHumidity);
-                              double time = calculateTimeDifference(currentDate, user.startDate!);
+                              final users = snapshot.data as List<UserModel>;
+                              UserModel? user;
+                              /// TODO: This is hardcoded, needs to be updated
+                              if (users.length > 0){
+                                user = users.firstWhere((user) => user.email == 'aryanpandey048@gmail.com');
+                              }
+                              double initialWeight = (user?.initialWeight?.toDouble())!;
+                              double transpirationRate = PotatoData.getTranspirationRate(latestSensorReading['temperature'] ?? 0, latestSensorReading['humidity'] ?? 0);
+                              double time = currentDashboard == 1? calculateTimeDifference(currentDate, user!.startDate!):calculateTimeDifference(currentDate, user!.startDate2!);
                               double currentWeight = PotatoData.getWeightloss(initialWeight, transpirationRate, time);
                               double currentWeightlossPercentage = PotatoData.calculateCurrentWeightlossPercentage(initialWeight,currentWeight);
                               double shelfLife = PotatoData.calculateRemainingShelflife(
@@ -171,17 +302,17 @@ class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
                               return Column(
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  (Provider.of<CropListProvider>(context).cropStatusList.length != 0) ?
-                                    Provider.of<CropListProvider>(context).cropStatusList.last.overallHealthStatus == 'Healthy'? buildTextAlert('Lots Healthy') : buildTextAlert('Lots Unhealthy'):
-                                      SizedBox(),
-                                  buildText('Shelf Life: ${shelfLife.toStringAsFixed(2)} days', user
-                                  ),
-                                  buildText('Weight: ${currentWeight.toStringAsFixed(2)} Kgs', user
-                                  ),
+                                  // (Provider.of<CropListProvider>(context).cropStatusList.length != 0) ?
+                                  //   Provider.of<CropListProvider>(context).cropStatusList.last.overallHealthStatus == 'Healthy'? buildTextAlert('Lots Healthy') : buildTextAlert('Lots Unhealthy'):
+                                  //     SizedBox(),
+                                  Provider.of<UselessProvider>(context).isLotsHealthy ? buildTextAlert('Lots Healthy') : buildTextAlert('Lots Unhealthy'),
+                                  buildText('Shelf Life: ${shelfLife.toStringAsFixed(2)} days'),
+                                  buildText('Weight: ${currentWeight.toStringAsFixed(2)} Kgs'),
                                 ],
                               );
                             } else if(snapshot.hasError){
-                              return Text('Something went wrong');
+                              print(snapshot..error);
+                              return Text('${snapshot..error}');
                             } else {
                               return Center(child: CircularProgressIndicator(),);
                             }
@@ -221,28 +352,31 @@ class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
                           ),
                         ),
                         Expanded(
-                            child: StreamBuilder<List<User>>(
+                            child: StreamBuilder<List<UserModel>>(
                               stream: readUsers(),
                               builder: (context, snapshot) {
                                 if(snapshot.hasData){
-                                  final users = snapshot.data as List<User>;
-
-                                  User user = users[0];
+                                  final users = snapshot.data as List<UserModel>;
+                                  /// Create a logic to select the logged in user and remove this hardcoding of users
+                                  UserModel user = users[0];
+                                  if (users.length > 0){
+                                    user = users.firstWhere((user) => user.name == 'Priya Kedia');
+                                  }
 
                                   return Column(
                                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: [
-                                      buildText('Start Date: ${DateFormat('dd-MM-yyyy').format(user.startDate!)}', user),
-                                      buildText('Current Date: ${DateFormat('dd-MM-yyyy').format(currentDate)}', user),
-                                      buildText('Total Days: ${calculateTimeDifference(currentDate, user.startDate!)}', user),
-                                      buildText('Initial weight: ${user.initialWeight} kgs', user),
+                                      currentDashboard == 1 ? buildText('Start Date: ${DateFormat('dd-MM-yyyy').format(user.startDate!)}'): buildText('Start Date: ${DateFormat('dd-MM-yyyy').format(user.startDate2!)}'),
+                                      buildText('Current Date: ${DateFormat('dd-MM-yyyy').format(currentDate)}'),
+                                      currentDashboard == 1 ? buildText('Total Days: ${calculateTimeDifference(currentDate, user.startDate!)}'):buildText('Total Days: ${calculateTimeDifference(currentDate, user.startDate2!)}'),
+                                      buildText('Initial weight: ${user.initialWeight} kgs'),
                                     ],
                                   );
                                 } else if(snapshot.hasError){
@@ -266,24 +400,8 @@ class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
     );
   }
 
-  Widget buildText(String text, User user){
-
-    // if(user.temperature! > 50){
-    //   WidgetsBinding.instance
-    //       .addPostFrameCallback((_) => setState((){textColor = Colors.red;}));
-    // }
-    // if(user.relativeHumidity! < 10 ){
-    //   WidgetsBinding.instance
-    //       .addPostFrameCallback((_) => setState((){textColor = Colors.red;}));
-    // }
-    // if(user.ethyleneConc! > 430){
-    //   WidgetsBinding.instance
-    //       .addPostFrameCallback((_) => setState((){textColor = Colors.red;}));
-    // }
-    // if(user.co2Conc! > 500){
-    //   WidgetsBinding.instance
-    //       .addPostFrameCallback((_) => setState((){textColor = Colors.red;}));
-    // }
+  /// Widget that builds a simple Text() widget with provided string
+  Widget buildText(String text){
     return Text(
       text,
       style: TextStyle(
@@ -293,6 +411,7 @@ class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
     );
   }
 
+  /// Widget tht builds text alert of 'Lots Unhealthy' or 'Lots healthy' in Quality parameters section
   Widget buildTextAlert(String text){
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -315,15 +434,4 @@ class _CurrentConditionsScreenState extends State<CurrentConditionsScreen> {
       ),
     );
   }
-
-  Widget buildIndicator(int activeIndex, int count) => AnimatedSmoothIndicator(
-    activeIndex: activeIndex,
-    count: count,
-    effect:  ExpandingDotsEffect(
-      dotHeight: 8,
-      dotWidth: 8,
-      dotColor:  Colors.blueGrey.shade100,
-      activeDotColor:  Colors.blueGrey.shade200,
-    ),
-  );
 }

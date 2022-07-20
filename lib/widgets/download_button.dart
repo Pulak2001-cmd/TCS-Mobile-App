@@ -9,27 +9,30 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
+Future generatePDF() async{
+  final pdf = pw.Document();
+  final List headers = ['SNo.','Time (days)',' Reducing Sugar'];
+  final data = [
+    [1, 0, 0.001],
+    [2, 10, 0.002],
+    [3, 20, 0.0024],
+  ];
+
+  pdf.addPage(pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      build: (pw.Context context) {
+        return pw.Table.fromTextArray(
+            headers: headers,
+            data: data); // Center
+      }));
+  final file = File("/storage/emulated/0/Download/results.pdf");
+  await file.writeAsBytes(await pdf.save());
+}
+
 Widget buildDownloadButton(){
   return ElevatedButton(
     onPressed: () async{
-      final pdf = pw.Document();
-      final List headers = ['SNo.','Time (days)',' Reducing Sugar'];
-      final data = [
-        [1, 0, 0.001],
-        [2, 10, 0.002],
-        [3, 20, 0.0024],
-      ];
-
-      pdf.addPage(pw.Page(
-          pageFormat: PdfPageFormat.a4,
-          build: (pw.Context context) {
-            return pw.Table.fromTextArray(
-                headers: headers,
-                data: data); // Center
-          }));
-      final file = File("/storage/emulated/0/Download/results.pdf");
-      await file.writeAsBytes(await pdf.save());
-
+      await generatePDF();
     },
     child: Row(
         mainAxisSize: MainAxisSize.min,

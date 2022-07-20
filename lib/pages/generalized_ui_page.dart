@@ -6,7 +6,6 @@ import 'package:flutter_login_ui/pages/generalizedUI_tabBar_views/meat_view.dart
 import 'package:flutter_login_ui/pages/generalizedUI_tabBar_views/vegetables_view.dart';
 import 'package:hexcolor/hexcolor.dart';
 
-import '../widgets/drawer_widget.dart';
 class GeneralizedUIPage extends StatefulWidget {
   const GeneralizedUIPage({Key? key}) : super(key: key);
 
@@ -57,14 +56,15 @@ class _GeneralizedUIPageState extends State<GeneralizedUIPage> with SingleTicker
         backgroundColor: Colors.transparent,
         extendBodyBehindAppBar: true,
         appBar: AppBar(
-          title: Text("Generalized UI",
+          title: Text(
+            // "Generalized UI",
+            "Food Quality Prediction",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           elevation: 0.0,
           iconTheme: IconThemeData(color: Colors.white),
           backgroundColor: Colors.transparent,
         ),
-        drawer: SideDrawer(),
         body: Container(
           color: Colors.transparent,
           padding: EdgeInsets.symmetric(vertical: 16,horizontal: 0),
@@ -106,10 +106,10 @@ class _GeneralizedUIPageState extends State<GeneralizedUIPage> with SingleTicker
                       indicatorColor: HexColor('#00FFFFFF'),
                       isScrollable: true,
                         tabs: [
-                          buildTab('Dairy',0),
-                          buildTab('Meat',1),
-                          buildTab('Fruits',2),
-                          buildTab('Vegetables',3),
+                          buildTab('Vegetables',0),
+                          buildTab('Fruits',1),
+                          buildTab('Dairy',2),
+                          buildTab('Meat',3),
                           buildTab('Arable',4),
                         ],
                     ),
@@ -118,10 +118,10 @@ class _GeneralizedUIPageState extends State<GeneralizedUIPage> with SingleTicker
                     child: TabBarView(
                       controller: _tabController,
                         children: [
+                          VegetablesView(),
+                          FruitsView(),
                           DairyView(),
                           MeatView(),
-                          FruitsView(),
-                          VegetablesView(),
                           ArableView(),
                         ],
                     ),

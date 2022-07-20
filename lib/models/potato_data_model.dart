@@ -1,8 +1,12 @@
+/// /////////////////////////////////////////////////////////////////////////
+/// //////// Potato Model Class with all the mathematical models ////////////
+/// /////////////////////////////////////////////////////////////////////////
+
 import 'dart:math';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:excel/excel.dart';
 
-//Potato Model Class with all the relevant functions
+
 
 class PotatoData {
   String? variety;
@@ -27,7 +31,7 @@ class PotatoData {
     this.model,
   });
 
-  //Functions which contain all the formulae
+
 
   Future initializeWithAllDayData(String selectedVariety, {String selectedVarietyType = 'Cold-sensitive or High-sugar accumulating'}) async {
     ByteData data = await rootBundle.load("assets/excel/RS_model.xlsx");
@@ -109,7 +113,7 @@ class PotatoData {
 
   //----------------------------------------------------------------------------------------------------
 
-    //---------------------------Transpiration based models-----------------------------------------------------------------
+    /////////////////////////////////// Transpiration based models /////////////////////////////////////////
     static double getTranspirationRate(T, rh) {
       double k = 1.0029;
       double A = -5.4661;
@@ -118,18 +122,19 @@ class PotatoData {
           exp(B * ((rh / 100) - 0.34) / 0.56) * 4.351 + 0.358;
       return tr;
     }
-    //--------------------------------------------------------------------------------------------------------------------
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    //------------------------------Weightloss----------------------------------------------------------------------
+    //////////////////////////////////////// Weight loss ////////////////////////////////////////////////////////
+    /// Function that predicts weight loss using initialWeight, tr & time as parameters
     static double getWeightloss(initialWeight, transpirationRate, time) {
       return initialWeight * (1 - (transpirationRate * time) / 1000);
     }
-
+   /// Function that calculates weight loss percentage using initialWeight and currentWeight as parameters
     static double calculateCurrentWeightlossPercentage(double initialWeight, double currentWeight) {
       return (initialWeight - currentWeight)*100/initialWeight;
     }
-    //--------------------------------------------------------------------------------------------------------------------
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     //------------------------------Shelf Life----------------------------------------------------------------------
@@ -142,6 +147,49 @@ class PotatoData {
 
 
     //------------------------------Reducing Sugar----------------------------------------------------------------------
+  static double getAvgPotatoRS(Map rsAvgVariety) {
+    double total = 0;
+    int count = 0;
+    rsAvgVariety.forEach((key, value) {
+      total += value;
+      count +=1;
+    });
+    return double.parse((total / count).toStringAsFixed(2));
+  }
+  static double rsAvg({String variety = 'None', String varietyType = 'None'}) {
+    Map<String, double> rsAvgVariety = {
+      'Saturna': 0.054,
+      'Kennebec': 0.04,
+      'Agria': 0.230,
+      'Toyoshiro': 0.05,
+      'K Lauvkar': 0.075,
+      'K Chipsona1': 0.028,
+      'K Jyoti': 0.35,
+      'Wu-foon': 0.355,
+      'Norchip': 0.006,
+      'K Badshah': 0.06,
+      'K Chipsona2': 0.12,
+      'Vangodh': 0.3,
+      'Bintje': 0.2,
+      'Simcoe': 0.015,
+      'Onaway': 0.04,
+      'Cardinal': 0.2
+    };
+    Map<String, double> coldResistanceAvgValue = {
+      'Cold-sensitive or High-sugar accumulating': 0.08683,
+      'Cold-resistant or Low-sugar accumulating': 0.1844,
+    };
+    if (variety != 'None') {
+      return rsAvgVariety[variety]!;
+    }
+    if (varietyType != 'None') {
+      return coldResistanceAvgValue[varietyType]!;
+    }
+    else {
+      return getAvgPotatoRS(rsAvgVariety);
+    }
+  }
+
     Future<double> RS_all_day(time, T, currentRS) async {
       ByteData data = await rootBundle.load("assets/excel/RS_model.xlsx");
       var bytes = data.buffer.asUint8List(
@@ -252,43 +300,6 @@ class PotatoData {
 
     //-----------------------------------------pH------------------------------------------------------
 
-    // Future<double> calculate_ph(time, temp, rh) async {
-    //   //Reading data from excel file and then saving sheet 'random_data' to variable pH_data EDIT: Sheet2 is used with values of random_data copy pasted as Values.
-    //   ByteData data = await rootBundle.load(
-    //       "assets/excel/pH_data.xlsx"); //values in excel should be numerical values and not excel Formulas as it reads it directly and not the value given by excel formulae
-    //   var bytes = data.buffer.asUint8List(
-    //       data.offsetInBytes, data.lengthInBytes);
-    //   var excel = Excel.decodeBytes(bytes);
-    //   var pH_data = excel.tables['Sheet2'];
-    //
-    //   int ALPHA = 5;
-    //   int BETA = 2;
-    //   int GAMA = 1;
-    //   int TOTAL = 29;
-    //   double minDistance = double.infinity;
-    //   double closestStateVal = 0;
-    //   for (var row in (pH_data?.rows)!) {
-    //     if (row[2]?.value.runtimeType == String) continue;
-    //     double distance = 0;
-    //     double a1 = row[2]?.value.toDouble();
-    //     double b1 = row[0]?.value.toDouble();
-    //     double c1 = row[1]?.value.toDouble();
-    //
-    //     double a = (a1 - time);
-    //     double b = (b1 - temp);
-    //     double c = (c1 - rh);
-    //
-    //
-    //     distance += (pow(a, 2) * ALPHA);
-    //     distance += ((pow(b, 2) * BETA));
-    //     distance += ((pow(c, 2) * GAMA));
-    //     if (distance < minDistance) {
-    //       minDistance = distance;
-    //       closestStateVal = row[3]?.value;
-    //     }
-    //   }
-    //   return closestStateVal;
-    // }
 
     Future<double> calculate_ph(time, temp, rh) async {
       //Reading data from excel file and then saving sheet 'random_data' to variable pH_data EDIT: Sheet2 is used with values of random_data copy pasted as Values.
@@ -335,18 +346,6 @@ class PotatoData {
 
       return interpolate(time, columnIndex, columnDay);
     }
-    // Future<List<double>> calculate_ph_vectorized(timeVec, temp, rh) async {
-    //   List<double> res = [];
-    //   var time;
-    //   double pH;
-    //   for (time in timeVec) {
-    //     pH = await calculate_ph(time, temp, rh);
-    //     res.add(pH);
-    //   }
-    //   return res;
-    // }
-
-
     //-----------------------------------------------------------------------------------------------------
 
 
@@ -386,33 +385,6 @@ class PotatoData {
     //-----------------------------------------------------------------------------------------------------
 
     //-----------------------------------------Total Sugars---------------------------------------------------
-    // Future<double> calculate_tot_sugar(time, temp, rh) async {
-    //   //Reading data from excel file and then saving sheet 'random_data' to variable pH_data
-    //   ByteData data = await rootBundle.load("assets/excel/pH_data.xlsx");
-    //   var bytes = data.buffer.asUint8List(
-    //       data.offsetInBytes, data.lengthInBytes);
-    //   var excel = Excel.decodeBytes(bytes);
-    //   var pH_data = excel.tables['Sheet2'];
-    //
-    //   int ALPHA = 5;
-    //   int BETA = 2;
-    //   int GAMA = 1;
-    //   int TOTAL = 29;
-    //   double minDistance = 1000000;
-    //   double closestStateVal = 0;
-    //   for (var row in (pH_data?.rows)!) {
-    //     if (row[2]?.value.runtimeType == String) continue;
-    //     double distance = 0;
-    //     distance += ((pow(row[2]?.value - time, 2) * ALPHA));
-    //     distance += ((pow(row[0]?.value - temp, 2) * BETA));
-    //     distance += ((pow(row[1]?.value - rh, 2) * GAMA));
-    //     if (distance < minDistance) {
-    //       minDistance = distance;
-    //       closestStateVal = row[5]?.value;
-    //     }
-    //   }
-    //   return closestStateVal;
-    // }
 
     Future<double> calculate_tot_sugar(time, temp, rh) async {
     ByteData data = await rootBundle.load(
@@ -474,6 +446,7 @@ class PotatoData {
     return interpolate(time, columnIndex, columnDay);
   }
 
+    /// Unused function created because a similiar function exits in website's app.py
     Future<List<double>> calculate_tot_sugar_vectorized(timeVec, temp,
         rh) async {
       List<double> res = [];
@@ -541,7 +514,7 @@ class PotatoData {
 
     return interpolate(time, columnIndex, columnDay);
   }
-
+    /// Unused function created because a similiar function exits in website's app.py
     Future<List<double>> calculate_starch_vectorized(timeVec, temp, rh) async {
       List<double> res = [];
       var time;
@@ -557,6 +530,7 @@ class PotatoData {
     //---------------------------------------------------------------------------------------------------------
 
 //-----------------------------------------Time Manipulation---------------------------------------------------
+    /// Unused function created because a similiar function exits in website's app.py
     double timeDifferenceInDays(DateTime to, DateTime from) {
       from = DateTime(from.year, from.month, from.day);
       to = DateTime(to.year, to.month, to.day);
@@ -566,7 +540,7 @@ class PotatoData {
       return differenceInDays;
     }
 
-
+  /// Unused function created because a similiar function exits in website's app.py
     double timeDifferenceInSeconds(DateTime to, DateTime from) {
       from = DateTime(from.year, from.month, from.day);
       to = DateTime(to.year, to.month, to.day);
@@ -576,17 +550,18 @@ class PotatoData {
       return differenceInSeconds;
     }
 
+  /// Unused function created because a similiar function exits in website's app.py
     //returns new Date after subtracting provided time in seconds from provided Date
     DateTime sub_time(DateTime time, int seconds) {
       return time.subtract(Duration(seconds: seconds));
     }
-
+  /// Unused function created because a similiar function exits in website's app.py
     //returns new Date after adding provided time in seconds from provided Date
     DateTime add_time(DateTime time, int seconds) {
       return time.add(Duration(seconds: seconds));
     }
 
-
+  /// Unused function created because a similiar function exits in website's app.py
     List<List> tacia(time) {
       int TOTAL_POINTS = 30;
       int TOTAL_POINTS_IN_DATABASE = time.length;
@@ -625,6 +600,7 @@ class PotatoData {
       index_array = new List.from(index_array.reversed);
       return [time_array, index_array];
     }
+  /// Unused function created because a similiar function exits in website's app.py
     List get_values(parameter_list, index_array) {
       List res = [];
       for (var index in index_array) {
