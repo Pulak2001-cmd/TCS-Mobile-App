@@ -217,8 +217,7 @@ class SideDrawer extends StatelessWidget {
               ),
               title: Text(
                 // 'Manage your stock',
-                '''Shelf Life Prediction \n(Applications & Environment)''',
-                maxLines: 2,
+                'Shelf Life Prediction \n(Applications & Environment)',
                 style: TextStyle(
                   fontSize: _drawerFontSize,
                   color: Colors.white70,
