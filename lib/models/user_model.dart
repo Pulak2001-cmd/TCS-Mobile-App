@@ -1,4 +1,6 @@
-import 'dart:math';
+////////////////////////////////////////////////////////////////
+////// Model class to store User Data //////////////////////////
+////////////////////////////////////////////////////////////////
 
 class UserModel {
   final String? uid;
@@ -23,6 +25,7 @@ class UserModel {
     this.initialWeight,
   });
 
+  /// function that converts the JSON data coming from Firebase to UserModel object
   static UserModel fromJson(Map<String,dynamic> json) => UserModel(
     uid: json['uid'],
     name: json['Name'],

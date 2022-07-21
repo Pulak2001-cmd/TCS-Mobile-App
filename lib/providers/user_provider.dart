@@ -19,10 +19,10 @@ class UserProvider with ChangeNotifier{
     this.user
   });
 
-  /// Useless function
+  /// function that initializes the user
   Future init() async{
     print("init run");
-    List<UserModel> users = await readUsers().first;
+    List<UserModel> users = await readUsers().first; // reading the first user which is wrong, read the user based on the uid of the logged in user
     print(users);
     user = users.first;
     notifyListeners();

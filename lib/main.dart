@@ -6,7 +6,7 @@ import 'package:flutter_login_ui/providers/alert_provider.dart';
 import 'package:flutter_login_ui/providers/current_dashboard_provider.dart';
 import 'package:flutter_login_ui/providers/quality_of_lots_hardcoded_provider.dart';
 // import 'package:flutter_login_ui/providers/delete_this_useless_provider.dart';
-import 'package:flutter_login_ui/providers/temp_crop_list_provider.dart';
+import 'package:flutter_login_ui/providers/crop_list_provider.dart';
 import 'package:flutter_login_ui/providers/user_provider.dart';
 import 'package:flutter_login_ui/services/auth.dart';
 import 'package:hexcolor/hexcolor.dart';

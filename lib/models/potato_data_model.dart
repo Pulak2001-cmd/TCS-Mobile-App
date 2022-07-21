@@ -1,12 +1,10 @@
-/// /////////////////////////////////////////////////////////////////////////
-/// //////// Potato Model Class with all the mathematical models ////////////
-/// /////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
+/////////// Potato Model Class with all the mathematical models ////////////
+////////////////////////////////////////////////////////////////////////////
 
 import 'dart:math';
 import 'package:flutter/services.dart' show ByteData, rootBundle;
 import 'package:excel/excel.dart';
-
-
 
 class PotatoData {
   String? variety;
@@ -32,7 +30,7 @@ class PotatoData {
   });
 
 
-
+  /// function that initialized the PotatoData object with the values from the excel file for the provided variety
   Future initializeWithAllDayData(String selectedVariety, {String selectedVarietyType = 'Cold-sensitive or High-sugar accumulating'}) async {
     ByteData data = await rootBundle.load("assets/excel/RS_model.xlsx");
     var bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);

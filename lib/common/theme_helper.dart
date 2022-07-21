@@ -1,9 +1,12 @@
+//////////////////////////////////////////////////////////////////
+///////// ThemeHelper provides widget themes for the app /////////
+//////////////////////////////////////////////////////////////////
+/// TODO: this file was created to implement light and dark themes but this feature was not completed
 
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 class ThemeHelper{
-
   InputDecoration textInputDecoration([String labelText="", String hintText = ""]){
     return InputDecoration(
       labelText: labelText,

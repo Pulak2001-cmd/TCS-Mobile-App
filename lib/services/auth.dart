@@ -1,8 +1,16 @@
+////////////////////////////////////////////////////
+////// Service class for FirebaseAuth //////////////
+////////////////////////////////////////////////////
+
+/// provides authentication services provided by firebase
+
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AuthServices {
 
+  /// initializing FirebaseAuth object
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   /// Stream from Firebase Auth
