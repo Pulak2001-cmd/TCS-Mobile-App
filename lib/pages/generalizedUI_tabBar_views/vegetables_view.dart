@@ -10,10 +10,12 @@ class VegetablesView extends StatelessWidget {
   //MAIN BODY
   @override
   Widget build(BuildContext context) {
+    print(context);
+    print("hello");
     return Container(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body:Padding(
+        body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: SafeArea(
             child: Column(
@@ -26,16 +28,16 @@ class VegetablesView extends StatelessWidget {
                           HexColor('#FFC371'),
                           'Onion',
                           'assets/images/generalizedUI_page/vegetables/onion.png',
-                          context
+                          context),
+                      SizedBox(
+                        width: 16,
                       ),
-                      SizedBox(width: 16,),
                       buildCard(
                           HexColor('#ec008c'),
                           HexColor('#fc6767'),
                           'Carrot',
                           'assets/images/generalizedUI_page/vegetables/carrot.png',
-                          context
-                      ),
+                          context),
                     ],
                   ),
                 ),
@@ -50,9 +52,10 @@ class VegetablesView extends StatelessWidget {
                           HexColor('#6dd5ed'),
                           'Potato',
                           'assets/images/generalizedUI_page/vegetables/potato.png',
-                          context
+                          context),
+                      SizedBox(
+                        width: 16,
                       ),
-                      SizedBox(width: 16,),
                       Expanded(child: SizedBox())
                     ],
                   ),
@@ -64,8 +67,4 @@ class VegetablesView extends StatelessWidget {
       ),
     );
   }
-
-
-
 }
-

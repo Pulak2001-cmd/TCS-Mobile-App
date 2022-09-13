@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_login_ui/pages/best_practices_pages/disease_management_page.dart';
 import 'package:flutter_login_ui/pages/best_practices_pages/quality_standards.dart';
+import 'package:flutter_login_ui/pages/best_practices_pages/quality_standards1.dart';
 import 'package:flutter_login_ui/pages/best_practices_pages/smart_warehouse.dart';
 import 'package:flutter_login_ui/pages/best_practices_pages/storage_protocol.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -20,8 +21,6 @@ class BestPracticesPage extends StatelessWidget {
     ListTileData(Icon(FontAwesomeIcons.addressCard), 'Disease Management'),
     ListTileData(Icon(FontAwesomeIcons.addressCard), 'Disease Management'),
   ];
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -42,11 +41,13 @@ class BestPracticesPage extends StatelessWidget {
         extendBodyBehindAppBar: true,
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: Text('Best Practices',
+          title: Text(
+            'Best Practices',
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w500,
-            ),),
+            ),
+          ),
           elevation: 0,
           backgroundColor: Colors.transparent,
           iconTheme: IconThemeData(color: Colors.white),
@@ -65,17 +66,17 @@ class BestPracticesPage extends StatelessWidget {
                           'Disease Management',
                           FontAwesomeIcons.briefcaseMedical,
                           DiseaseManagementPage(),
-                          context
+                          context),
+                      SizedBox(
+                        width: 16,
                       ),
-                      SizedBox(width: 16,),
                       buildCard(
-                        HexColor('#11998e'),
-                        HexColor('#38ef7d'),
-                        'Quality Standards',
-                        FontAwesomeIcons.heartCircleCheck,
-                          QualityStandardsPage(),
-                          context
-                      ),
+                          HexColor('#11998e'),
+                          HexColor('#38ef7d'),
+                          'Quality Standards',
+                          FontAwesomeIcons.heartCircleCheck,
+                          QualityPage(),
+                          context),
                     ],
                   ),
                 ),
@@ -86,22 +87,22 @@ class BestPracticesPage extends StatelessWidget {
                   child: Row(
                     children: [
                       buildCard(
-                        HexColor('#2193b0'),
-                        HexColor('#6dd5ed'),
-                        'Sprout Management',
-                        FontAwesomeIcons.seedling,
+                          HexColor('#2193b0'),
+                          HexColor('#6dd5ed'),
+                          'Sprout Management',
+                          FontAwesomeIcons.seedling,
                           SproutManagementPage(),
-                          context
+                          context),
+                      SizedBox(
+                        width: 16,
                       ),
-                      SizedBox(width: 16,),
                       buildCard(
-                        HexColor('#ec008c'),
-                        HexColor('#fc6767'),
-                        'Smart Warehouse',
-                        FontAwesomeIcons.houseSignal,
+                          HexColor('#ec008c'),
+                          HexColor('#fc6767'),
+                          'Smart Warehouse',
+                          FontAwesomeIcons.houseSignal,
                           SmartWarehousePage(),
-                          context
-                      ),
+                          context),
                     ],
                   ),
                 ),
@@ -112,13 +113,12 @@ class BestPracticesPage extends StatelessWidget {
                   child: Row(
                     children: [
                       buildCard(
-                        HexColor('#c0c0aa'),
-                        HexColor('#1cefff'),
-                        'Storage Protocol',
-                        FontAwesomeIcons.boxOpen,
+                          HexColor('#c0c0aa'),
+                          HexColor('#1cefff'),
+                          'Storage Protocol',
+                          FontAwesomeIcons.boxOpen,
                           StorageProtocolPage(),
-                          context
-                      ),
+                          context),
                     ],
                   ),
                 ),
@@ -130,7 +130,8 @@ class BestPracticesPage extends StatelessWidget {
     );
   }
 
-  Widget buildCard(HexColor color1, HexColor color2, String title, IconData icon, page, BuildContext context) {
+  Widget buildCard(HexColor color1, HexColor color2, String title,
+      IconData icon, page, BuildContext context) {
     return Expanded(
       child: Container(
         clipBehavior: Clip.antiAlias,
@@ -146,18 +147,21 @@ class BestPracticesPage extends StatelessWidget {
             end: Alignment.topRight,
           ),
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 15.0,
-          ),],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 15.0,
+            ),
+          ],
         ),
         child: ElevatedButton(
           style: ButtonStyle(
             backgroundColor: MaterialStateProperty.all(Colors.transparent),
             elevation: MaterialStateProperty.all(0),
           ),
-          onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context) => page));
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => page));
           },
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -165,14 +169,18 @@ class BestPracticesPage extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 3,
-                  child: Icon(icon,size: 50,color: Colors.white,),
+                  child: Icon(
+                    icon,
+                    size: 50,
+                    color: Colors.white,
+                  ),
                 ),
                 Expanded(
                   child: Text(
                     title,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize:14,
+                      fontSize: 14,
                       fontWeight: FontWeight.w400,
                       fontFamily: 'Roboto',
                     ),
@@ -200,6 +208,5 @@ class ListTileData {
   Icon leading;
   String title;
 
-  ListTileData(this.leading,this.title);
-
+  ListTileData(this.leading, this.title);
 }

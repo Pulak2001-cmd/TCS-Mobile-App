@@ -1,6 +1,3 @@
-
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_login_ui/pages/realtime_monitoring_screens/quality_of_lots_screen.dart';
 import 'package:flutter_login_ui/pages/realtime_monitoring_screens/quality_of_lots_screen_hardcoded.dart';
@@ -16,8 +13,6 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../widgets/bottom_modal_sheet.dart';
 import '../widgets/drawer_widget.dart';
 
-
-
 class RealTimeMonitoringPage extends StatefulWidget {
   const RealTimeMonitoringPage({Key? key}) : super(key: key);
 
@@ -26,7 +21,6 @@ class RealTimeMonitoringPage extends StatefulWidget {
 }
 
 class _RealTimeMonitoringPageState extends State<RealTimeMonitoringPage> {
-
   //index for bottom navigation
   int currentIndex = 0;
   final screens = [
@@ -66,19 +60,20 @@ class _RealTimeMonitoringPageState extends State<RealTimeMonitoringPage> {
         appBar: AppBar(
           title: Text(
             // 'Realtime monitoring',
-            "Warehouse Management",
+            "Realtime Monitoring",
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 17,
-            ),),
+            ),
+          ),
           elevation: 0,
           backgroundColor: Colors.transparent,
           iconTheme: IconThemeData(color: Colors.white),
           actions: [
             Container(
               child: TextButton(
-                onPressed: ()=> showModalBottomSheet(
+                onPressed: () => showModalBottomSheet(
                   isScrollControlled: true,
                   context: context,
                   builder: (context) => buildSheet(context),
@@ -86,15 +81,32 @@ class _RealTimeMonitoringPageState extends State<RealTimeMonitoringPage> {
                 ),
                 child: Stack(
                   children: <Widget>[
-                    Icon(Icons.notifications,
-                      color: Colors.white,),
+                    Icon(
+                      Icons.notifications,
+                      color: Colors.white,
+                    ),
                     Positioned(
                       right: 0,
                       child: Container(
                         padding: EdgeInsets.all(1),
-                        decoration: BoxDecoration( color: Colors.red, borderRadius: BorderRadius.circular(6),),
-                        constraints: BoxConstraints( minWidth: 12, minHeight: 12, ),
-                        child: Text( Provider.of<AlertProvider>(context).getLength().toString(), style: TextStyle(color: Colors.white, fontSize: 8,), textAlign: TextAlign.center,),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        constraints: BoxConstraints(
+                          minWidth: 12,
+                          minHeight: 12,
+                        ),
+                        child: Text(
+                          Provider.of<AlertProvider>(context)
+                              .getLength()
+                              .toString(),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 8,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     )
                   ],
@@ -153,39 +165,48 @@ class _RealTimeMonitoringPageState extends State<RealTimeMonitoringPage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text('Storage Conditions',
+            child: Text(
+              'Storage Conditions',
               style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white
-              ),),
+                  color: Colors.white),
+            ),
           ),
-          SizedBox(height: 5,),
-          Text('Temperature: 17 C',
-            style: TextStyle(
-                color: Colors.white
-            ),),
-          SizedBox(height: 5,),
-          Text('Relative Humidity: 93 %',
-            style: TextStyle(
-                color: Colors.white
-            ),),
-          SizedBox(height: 5,),
-          Text('Ethylene conc: 408',
-            style: TextStyle(
-                color: Colors.white
-            ),),
-          SizedBox(height: 5,),
-          Text('CO2 conc: 400',
-            style: TextStyle(
-                color: Colors.white
-            ),),
+          SizedBox(
+            height: 5,
+          ),
+          Text(
+            'Temperature: 17 C',
+            style: TextStyle(color: Colors.white),
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Text(
+            'Relative Humidity: 93 %',
+            style: TextStyle(color: Colors.white),
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Text(
+            'Ethylene conc: 408',
+            style: TextStyle(color: Colors.white),
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Text(
+            'CO2 conc: 400',
+            style: TextStyle(color: Colors.white),
+          ),
         ],
       ),
     );
   }
 
-  Widget buildImage(String image, int index ) {
+  Widget buildImage(String image, int index) {
     return Container(
       margin: EdgeInsets.all(8),
       decoration: BoxDecoration(
@@ -205,18 +226,17 @@ class _RealTimeMonitoringPageState extends State<RealTimeMonitoringPage> {
       ),
       // child: Image.network(image,
       // fit: BoxFit.cover,),
-
     );
   }
 
   Widget buildIndicator(int activeIndex, int count) => AnimatedSmoothIndicator(
-    activeIndex: activeIndex,
-    count: count,
-    effect:  ExpandingDotsEffect(
-      dotHeight: 8,
-      dotWidth: 8,
-      dotColor:  Colors.blueGrey.shade100,
-      activeDotColor:  Colors.blueGrey.shade200,
-    ),
-  );
+        activeIndex: activeIndex,
+        count: count,
+        effect: ExpandingDotsEffect(
+          dotHeight: 8,
+          dotWidth: 8,
+          dotColor: Colors.blueGrey.shade100,
+          activeDotColor: Colors.blueGrey.shade200,
+        ),
+      );
 }
