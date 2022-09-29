@@ -21,12 +21,17 @@ class _DynamicDecisionPageState extends State<DynamicDecisionPage> {
   var rng = Random();
   int val = 60;
   double temp = 25;
+  double temp2 = 13;
+  double temp3 = 2;
   double humidity = 80;
+  double humidity_max = 95;
+  double humidity_avg = 87;
   void initState() {
     super.initState();
     val = rng.nextInt(100);
     print(val);
     getLocation();
+    temp2 = 2 + (temp - 2) / 2;
   }
 
   void getLocation() async {
@@ -45,6 +50,9 @@ class _DynamicDecisionPageState extends State<DynamicDecisionPage> {
     humidity = double.parse(x["main"]["humidity"].toString());
     print(temp);
     print(humidity);
+    temp2 = 2 + (temp - 2) / 2;
+    print(temp2);
+    humidity_avg = (humidity + humidity_max) / 2;
   }
 
   Stream<List<UserModel>> readUsers() {
@@ -113,38 +121,48 @@ class _DynamicDecisionPageState extends State<DynamicDecisionPage> {
                             ], isHeader: true),
 
                             buildRow([
-                              'Current ($temp , $humidity)',
+                              '$temp °C, $humidity %',
                               user?.endUse ?? 'Chips',
                               val.toString()
                             ]),
                             // buildRow(['Ambient', 'Domentic Use', '']),
                             buildRow([
-                              '',
+                              '$temp2 °C, $humidity %',
                               'Domestic Use',
                               rng.nextInt(100).toString()
                             ]),
                             buildRow([
-                              'Cold storage II (5, 95%)',
+                              '$temp3 °C, $humidity %',
                               'Domestic Use',
                               rng.nextInt(100).toString()
                             ]),
                             buildRow([
-                              'Current ($temp , $humidity)',
+                              '$temp °C, $humidity_avg %',
+                              'Domestic Use',
+                              rng.nextInt(100).toString()
+                            ]),
+                            buildRow([
+                              '$temp °C, $humidity_max %',
+                              'Domestic Use',
+                              rng.nextInt(100).toString()
+                            ]),
+                            buildRow([
+                              '$temp °C, $humidity %',
                               'Animal feed',
                               rng.nextInt(100).toString()
                             ]),
                             buildRow([
-                              'Current ($temp , $humidity)',
+                              '$temp , $humidity',
                               'Fries',
                               rng.nextInt(100).toString()
                             ]),
                             buildRow([
-                              'Current ($temp , $humidity)',
+                              '$temp , $humidity',
                               'Starch',
                               rng.nextInt(100).toString()
                             ]),
                             buildRow([
-                              'Current ($temp , $humidity)',
+                              '$temp , $humidity',
                               'Seeds',
                               rng.nextInt(100).toString()
                             ]),
